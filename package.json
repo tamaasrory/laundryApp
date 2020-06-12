@@ -1,0 +1,60 @@
+{
+  "name": "laundryApp",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "react-devtools": "react-devtools",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@react-native-community/datetimepicker": "^2.4.0",
+    "@react-native-community/masked-view": "^0.1.10",
+    "@react-native-community/progress-bar-android": "^1.0.2",
+    "@react-navigation/bottom-tabs": "^5.5.1",
+    "@react-navigation/material-bottom-tabs": "^5.2.9",
+    "@react-navigation/native": "^5.5.0",
+    "@react-navigation/stack": "^5.4.1",
+    "axios": "^0.19.2",
+    "mobx": "^5.15.4",
+    "mobx-react": "^6.2.2",
+    "moment": "^2.26.0",
+    "react": "16.11.0",
+    "react-native": "0.62.0",
+    "react-native-elements": "^1.2.7",
+    "react-native-geocoder": "^0.5.0",
+    "react-native-geolocation-service": "^4.0.2",
+    "react-native-gesture-handler": "^1.6.1",
+    "react-native-maps": "0.27.1",
+    "react-native-material-ripple": "^0.9.1",
+    "react-native-paper": "^3.10.1",
+    "react-native-permissions": "^2.1.5",
+    "react-native-raw-bottom-sheet": "^2.2.0",
+    "react-native-reanimated": "^1.9.0",
+    "react-native-safe-area-context": "^0.7.3",
+    "react-native-screens": "^2.8.0",
+    "react-native-sensitive-info": "^5.5.5",
+    "react-native-shimmer": "^0.6.0",
+    "react-native-status-bar-height": "^2.5.0",
+    "react-native-text-input-mask": "^2.0.0",
+    "react-native-vector-icons": "^6.6.0",
+    "reanimated-bottom-sheet": "^1.0.0-alpha.20"
+  },
+  "devDependencies": {
+    "@babel/core": "7.9.0",
+    "@babel/plugin-proposal-decorators": "^7.10.1",
+    "@babel/runtime": "7.9.2",
+    "@react-native-community/eslint-config": "0.0.5",
+    "babel-jest": "24.9.0",
+    "eslint": "6.8.0",
+    "jest": "24.9.0",
+    "metro-react-native-babel-preset": "0.58.0",
+    "react-test-renderer": "16.11.0"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}

@@ -1,0 +1,11 @@
+bagaimana dengan pemesanan laundry dengan banyak jenis dan
+pemilihan paket (biasa, express, super express) yang berbeda-beda
+misal :
+*Abah* memesan laundry
+1. Pakaian Biasa, Jenis Paket Express
+2. Pakaian Seragam, Jenis Paket Biasa
+
+Bagaimana ketentuan waktu pengantaran nya laundry *Abah*?
+Apakah di antar 2 kali yaitu bila pesanan express sudah selesai
+maka antar kepada *Abah*, kemudian setelah beberapa hari pesanan biasa
+selesai maka kembali mengantarnya kepada *Abah* ?
