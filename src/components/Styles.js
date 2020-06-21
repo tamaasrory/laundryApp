@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
   },
   textSecondary: {
-    fontSize: 14,
+    fontSize: 12,
     lineHeight: 20,
     color: theme.colors.backdrop,
   },
