@@ -398,41 +398,39 @@ class KatalogScreen extends React.PureComponent {
         <View
           style={{
             flexDirection: 'row',
-            justifyContent: 'space-between',
-            elevation: 4,
             paddingVertical: 8,
             backgroundColor: theme.colors.tabOrder,
           }}>
+          <Button
+            type={'clear'}
+            onPress={() => this.props.navigation.goBack()}
+            containerStyle={{justifyContent: 'center'}}
+            icon={
+              <MaterialCommunityIcons
+                name={'arrow-left'}
+                size={28}
+                color={theme.colors.textToolBar}
+              />
+            }
+          />
           <View
             style={{
               flexDirection: 'column',
               justifyContent: 'center',
               paddingHorizontal: 15,
             }}>
-            <Text style={[styles.textHeader, {color: '#fff'}]}>Price List</Text>
             <Text
-              style={[styles.textSecondary, {color: '#fff', marginTop: -3}]}>
-              Pilih barang yang mau di laundry
+              style={[styles.textHeader, {color: theme.colors.textToolBar}]}>
+              Pesan
+            </Text>
+            <Text
+              style={[
+                styles.textSecondary,
+                {color: theme.colors.textToolBar, marginTop: -3},
+              ]}>
+              Pilih barang yang akan dilaundry
             </Text>
           </View>
-          <TouchableHighlight
-            underlayColor={'transparent'}
-            style={{justifyContent: 'center'}}
-            onPress={() => this.props.navigation.navigate('CartScreen')}>
-            <View style={{marginLeft: 5, marginRight: 17}}>
-              <MaterialCommunityIcons
-                name={'shopping'}
-                size={24}
-                color={'#FFF'}
-              />
-              <Badge
-                status="error"
-                value={this.props.orderStore.getData.length}
-                containerStyle={{position: 'absolute', top: -7, right: -9}}
-                badgeStyle={{borderWidth: 0}}
-              />
-            </View>
-          </TouchableHighlight>
         </View>
         <View
           style={{
@@ -552,18 +550,18 @@ class KatalogScreen extends React.PureComponent {
               flexDirection: 'row',
               justifyContent: 'space-between',
               width: '100%',
-              backgroundColor: '#1dbc60',
-              paddingVertical: 5,
+              backgroundColor: '#009a32',
+              paddingVertical: 10,
               paddingLeft: 20,
             }}>
             <View style={{flexDirection: 'column'}}>
-              <Text style={{fontSize: 12, color: '#fff'}}>Total</Text>
+              <Text style={{fontSize: 14, color: '#fff'}}>Total</Text>
               <Text
                 style={{
-                  fontSize: 18,
+                  fontSize: 20,
                   alignSelf: 'center',
                   color: '#fff',
-                  marginTop: -5,
+                  marginTop: -3,
                 }}>
                 Rp{totalLaundry.toString().formatNumber()}
               </Text>
