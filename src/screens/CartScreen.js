@@ -5,7 +5,14 @@ import React from 'react';
 import FlatContainer from '../components/FlatContainer';
 import styles from '../components/Styles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Badge, Button, Divider, ListItem, Text} from 'react-native-elements';
+import {
+  Badge,
+  Button,
+  Divider,
+  Header,
+  ListItem,
+  Text,
+} from 'react-native-elements';
 import {Image, TouchableOpacity, View} from 'react-native';
 import {theme} from '../core/theme';
 import User from '../store/User';
@@ -331,7 +338,7 @@ class CartScreen extends React.PureComponent {
   );
 
   render() {
-    console.info('#render : ', 'KatalogScreen.js');
+    console.info('#render : ', 'CartScreen.js');
     const {bsMaxHeight, bsMidHeight} = this.state;
     let totalLaundry = 0;
 
@@ -345,8 +352,7 @@ class CartScreen extends React.PureComponent {
           style={{
             flexDirection: 'row',
             paddingVertical: 8,
-            elevation: 4,
-            backgroundColor: theme.colors.primary,
+            backgroundColor: theme.colors.tabOrder,
           }}>
           <Button
             type={'clear'}
@@ -356,7 +362,7 @@ class CartScreen extends React.PureComponent {
               <MaterialCommunityIcons
                 name={'arrow-left'}
                 size={28}
-                color={'white'}
+                color={theme.colors.textToolBar}
               />
             }
           />
@@ -366,12 +372,16 @@ class CartScreen extends React.PureComponent {
               justifyContent: 'center',
               paddingHorizontal: 15,
             }}>
-            <Text style={[styles.textHeader, {color: '#fff'}]}>
+            <Text
+              style={[styles.textHeader, {color: theme.colors.textToolBar}]}>
               Keranjang
             </Text>
             <Text
-              style={[styles.textSecondary, {color: '#fff', marginTop: -3}]}>
-              Berisi barang yang akan di laundry
+              style={[
+                styles.textSecondary,
+                {color: theme.colors.textToolBar, marginTop: -3},
+              ]}>
+              Daftar barang yang akan kamu laundry
             </Text>
           </View>
         </View>
@@ -485,18 +495,18 @@ class CartScreen extends React.PureComponent {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 width: '100%',
-                backgroundColor: '#1dbc60',
-                paddingVertical: 5,
+                backgroundColor: '#009a32',
+                paddingVertical: 10,
                 paddingLeft: 20,
               }}>
               <View style={{flexDirection: 'column'}}>
-                <Text style={{fontSize: 12, color: '#fff'}}>Total</Text>
+                <Text style={{fontSize: 14, color: '#fff'}}>Total</Text>
                 <Text
                   style={{
-                    fontSize: 18,
+                    fontSize: 20,
                     alignSelf: 'center',
                     color: '#fff',
-                    marginTop: -5,
+                    marginTop: -3,
                   }}>
                   Rp{totalLaundry.toString().formatNumber()}
                 </Text>
