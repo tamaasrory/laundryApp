@@ -12,6 +12,7 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import {inject, observer} from 'mobx-react';
 import ListOptions from '../components/ListOptions';
 import AlertDialog from '../components/AlertDialog';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 var moment = require('moment');
 
@@ -384,19 +385,25 @@ class HistoryScreen extends React.PureComponent {
             paddingVertical: 8,
             backgroundColor: theme.colors.tabHistory,
           }}>
+          <Button
+            type={'clear'}
+            onPress={() => this.props.navigation.goBack()}
+            containerStyle={{justifyContent: 'center'}}
+            icon={
+              <MaterialCommunityIcons
+                name={'arrow-left'}
+                size={28}
+                color={'white'}
+              />
+            }
+          />
           <View
             style={{
               flexDirection: 'column',
               justifyContent: 'center',
               paddingHorizontal: 15,
             }}>
-            <Text style={[styles.textHeader, {color: '#fff'}]}>
-              Riwayat Laundry
-            </Text>
-            <Text
-              style={[styles.textSecondary, {color: '#fff', marginTop: -5}]}>
-              Disini tempat riwayat order laundry kamu
-            </Text>
+            <Text style={[styles.textHeader, {color: '#fff'}]}>Riwayat</Text>
           </View>
         </View>
         <View
