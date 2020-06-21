@@ -11,7 +11,8 @@ import styles from '../components/Styles';
 import RestApi from '../router/Api';
 import SInfo from 'react-native-sensitive-info';
 import User from '../store/User';
-import {View} from 'react-native';
+import {StatusBar, View} from 'react-native';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 class AccountScreen extends React.PureComponent {
   state = {
@@ -105,22 +106,41 @@ class AccountScreen extends React.PureComponent {
     console.info('#render : ', this.constructor.name);
     return (
       <View style={{flexGrow: 1}}>
+        <StatusBar backgroundColor={theme.colors.tabAccountStatusBar} />
         <View
           style={{
             flexDirection: 'row',
             paddingVertical: 8,
             elevation: 4,
-            backgroundColor: theme.colors.primary,
+            backgroundColor: theme.colors.tabAccount,
           }}>
+          <Button
+            type={'clear'}
+            onPress={() => this.props.navigation.goBack()}
+            containerStyle={{justifyContent: 'center'}}
+            icon={
+              <MaterialCommunityIcons
+                name={'arrow-left'}
+                size={28}
+                color={theme.colors.textToolBar}
+              />
+            }
+          />
           <View
             style={{
               flexDirection: 'column',
               justifyContent: 'center',
               paddingHorizontal: 15,
             }}>
-            <Text style={[styles.textHeader, {color: '#fff'}]}>Akun</Text>
             <Text
-              style={[styles.textSecondary, {color: '#fff', marginTop: -5}]}>
+              style={[styles.textHeader, {color: theme.colors.textToolBar}]}>
+              Akun
+            </Text>
+            <Text
+              style={[
+                styles.textSecondary,
+                {color: theme.colors.textToolBar, marginTop: -5},
+              ]}>
               Detail profile kamu ada disini
             </Text>
           </View>
