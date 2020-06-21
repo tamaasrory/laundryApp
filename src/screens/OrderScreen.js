@@ -24,12 +24,10 @@ class OrderScreen extends React.PureComponent {
     dateAntar: new Date(),
     // setter
     showJemput: false,
-    // showAntar: false,
     modePickerJemput: 'date',
     modePickerAntar: 'date',
 
     waktuJemput: null,
-    // waktuAntar: null,
     noHp: null,
     alamat: null,
     latitude: null,
@@ -58,7 +56,6 @@ class OrderScreen extends React.PureComponent {
     this.props.orderStore.setData([]);
     this.setState({
       waktuJemput: null,
-      // waktuAntar: null,
       noHp: null,
       alamat: null,
       latitude: null,
@@ -77,23 +74,11 @@ class OrderScreen extends React.PureComponent {
     this.setWaktu('waktuJemput', 'dateJemput', 'timeJemput');
   };
 
-  // onChangeTimeAntar = (event, selected) => {
-  //   const current = selected || this.state.timeAntar;
-  //   this.setState({showAntar: false, timeAntar: current});
-  //   this.setWaktu('waktuAntar', 'dateAntar', 'timeAntar');
-  // };
-
   onChangeDateJemput = (event, selected) => {
     const current = selected || this.state.dateJemput;
     this.setState({showJemput: false, dateJemput: current});
     this.setWaktu('waktuJemput', 'dateJemput', 'timeJemput');
   };
-
-  // onChangeDateAntar = (event, selected) => {
-  //   const current = selected || this.state.dateAntar;
-  //   this.setState({showAntar: false, dateAntar: current});
-  //   this.setWaktu('waktuAntar', 'dateAntar', 'timeAntar');
-  // };
 
   convert = v => (v.toString().length === 2 ? v : `0${v}`);
 
@@ -151,19 +136,10 @@ class OrderScreen extends React.PureComponent {
       longitude,
       catatan,
     } = this.state;
-    if (
-      waktuJemput &&
-      // waktuAntar &&
-      noHp &&
-      alamat &&
-      latitude &&
-      longitude &&
-      catatan
-    ) {
+    if (waktuJemput && noHp && alamat && latitude && longitude && catatan) {
       return {
         barang: this.props.orderStore.getData,
         waktuJemput: waktuJemput,
-        // waktuAntar: waktuAntar,
         noHp: noHp,
         alamat: alamat,
         latitude: latitude,
@@ -219,11 +195,6 @@ class OrderScreen extends React.PureComponent {
       noHp,
       catatan,
       waktuJemput,
-      // timeAntar,
-      // dateAntar,
-      // showAntar,
-      // modePickerAntar,
-      // waktuAntar,
       alamat,
     } = this.state;
     console.info('#render : ', this.constructor.name);
@@ -234,8 +205,7 @@ class OrderScreen extends React.PureComponent {
           style={{
             flexDirection: 'row',
             paddingVertical: 8,
-            elevation: 4,
-            backgroundColor: theme.colors.primary,
+            backgroundColor: theme.colors.tabOrder,
           }}>
           <Button
             type={'clear'}
@@ -245,7 +215,7 @@ class OrderScreen extends React.PureComponent {
               <MaterialCommunityIcons
                 name={'arrow-left'}
                 size={28}
-                color={'white'}
+                color={theme.colors.textToolBar}
               />
             }
           />
@@ -255,11 +225,15 @@ class OrderScreen extends React.PureComponent {
               justifyContent: 'center',
               paddingHorizontal: 15,
             }}>
-            <Text style={[styles.textHeader, {color: '#fff'}]}>
-              Order Laundry
+            <Text
+              style={[styles.textHeader, {color: theme.colors.textToolBar}]}>
+              Info Pesanan
             </Text>
             <Text
-              style={[styles.textSecondary, {color: '#fff', marginTop: -3}]}>
+              style={[
+                styles.textSecondary,
+                {color: theme.colors.textToolBar, marginTop: -3},
+              ]}>
               Lengkapi data berikut
             </Text>
           </View>
@@ -267,13 +241,12 @@ class OrderScreen extends React.PureComponent {
 
         <View style={{flex: 1, height: 100}}>
           <FlatContainer style={{paddingHorizontal: 25, paddingTop: 10}}>
-            <Text style={[styles.textSecondary, {marginVertical: 10}]}>
-              Nikmati kemudahan mencuci dengan Ethan Laundry. Yuk order laundry
-              sekarang!
-            </Text>
-            <Text style={[styles.textLabel, {marginVertical: 10}]}>
-              Waktu Jemput
-            </Text>
+            <View style={{marginVertical: 10}}>
+              <Text style={styles.textLabel}>Waktu Jemput</Text>
+              <Text style={styles.textSecondary}>
+                ( Kapan laundry kamu mau dijemput? )
+              </Text>
+            </View>
             <View style={styles.rowsBetween}>
               <DateTimePicker
                 value={
@@ -301,38 +274,11 @@ class OrderScreen extends React.PureComponent {
               />
             </View>
 
-            {/*<View style={{flexDirection: 'row'}}>
-              <DateTimePicker
-                value={
-                  waktuAntar ? this.convertDate(dateAntar, '{D}/{M}/{Y}') : ''
-                }
-                onPress={() =>
-                  this.setState({showAntar: true, modePickerAntar: 'date'})
-                }
-                hint={'00/00/0000'}
-                label={'Waktu Antar'}
-                icon={'calendar-outline'}
-                iconColor={'green'}
-                style={{width: '60%'}}
-              />
-
-              <DateTimePicker
-                value={waktuAntar ? this.convertTime(timeAntar) : ''}
-                onPress={() =>
-                  this.setState({showAntar: true, modePickerAntar: 'time'})
-                }
-                hint={'00:00'}
-                label={''}
-                icon={'clock-outline'}
-                iconColor={'green'}
-                style={{width: '40%'}}
-                textStyle={{textAlign: 'center'}}
-              />
-            </View>*/}
-
             <Divider style={[styles.divider, {marginVertical: 10}]} />
-
-            <Text style={styles.textLabel}>Nomor Ponsel</Text>
+            <View style={{flexDirection: 'row'}}>
+              <Text style={styles.textLabel}>Nomor Ponsel</Text>
+              <Text style={styles.textSecondary}> ( Aktif )</Text>
+            </View>
             <View
               style={{
                 flexDirection: 'row',
@@ -344,11 +290,11 @@ class OrderScreen extends React.PureComponent {
                 <MaterialCommunityIcons
                   name={'phone'}
                   size={24}
-                  color={'green'}
+                  color={'forestgreen'}
                 />
               </View>
               <TextInputMask
-                placeholder={'+62-xxx-xxxx-xxxx'}
+                placeholder={'0812-xxxx-xxxx'}
                 onChangeText={(formatted, extracted) => {
                   console.log('nomer hp', extracted);
                   this.setState({noHp: extracted});
@@ -360,30 +306,9 @@ class OrderScreen extends React.PureComponent {
                   marginLeft: 7,
                   fontSize: 16,
                 }}
-                mask={'+[00]-[000]-[0000]-[000000]'}
+                mask={'[0000]-[0000]-[000000]'}
               />
             </View>
-
-            {/*<Input
-              label={'Nomor Ponsel'}
-              labelStyle={styles.fnt_14_secondary}
-              inputStyle={styles.mp_lr_0}
-              maxLength={16}
-              keyboardType={'phone-pad'}
-              containerStyle={styles.mp_l_0}
-              leftIconContainerStyle={styles.ml0_ph10}
-              leftIcon={
-                <MaterialCommunityIcons
-                  name={'phone'}
-                  size={24}
-                  color={'green'}
-                />
-              }
-              value={noHp}
-              onChangeText={text => {
-                this.setState({noHp: text});
-              }}
-            />*/}
 
             <Divider style={[styles.divider, {marginVertical: 10}]} />
             <Text style={styles.textLabel}>Alamat</Text>
@@ -404,19 +329,22 @@ class OrderScreen extends React.PureComponent {
                   <MaterialCommunityIcons
                     name={'google-maps'}
                     size={24}
-                    color={'blue'}
+                    color={'mediumblue'}
                   />
                 }
                 value={
                   alamat
                     ? alamat
-                    : 'Klik disini untuk mengisi alamat anda dari maps'
+                    : 'Klik disini, tentukan titik alamat anda langsung dari google maps'
                 }
               />
             </TouchableHighlight>
             <Divider style={[styles.divider, {marginVertical: 10}]} />
             <Input
               label={'Catatan'}
+              placeholder={
+                'misal: Perumahan A blok C26 Warna Hijau, silahkan ketik sesuai kebutuhan anda'
+              }
               labelStyle={styles.fnt_14_secondary}
               inputStyle={[styles.mp_lr_0, {fontSize: 15}]}
               multiline
@@ -426,7 +354,7 @@ class OrderScreen extends React.PureComponent {
               leftIconContainerStyle={styles.ml0_ph10}
               leftIcon={
                 <MaterialCommunityIcons
-                  name={'paperclip'}
+                  name={'pencil'}
                   size={24}
                   color={'grey'}
                 />
@@ -451,20 +379,6 @@ class OrderScreen extends React.PureComponent {
                 }
               />
             )}
-            {/*{showAntar && (
-            <RNDateTimePicker
-              timeZoneOffsetInMinutes={0}
-              value={modePickerAntar === 'date' ? dateAntar : timeAntar}
-              mode={modePickerAntar}
-              is24Hour={true}
-              display="default"
-              onChange={
-                modePickerAntar === 'date'
-                  ? this.onChangeDateAntar
-                  : this.onChangeTimeAntar
-              }
-            />
-          )}*/}
           </FlatContainer>
           <View
             style={{
@@ -479,7 +393,7 @@ class OrderScreen extends React.PureComponent {
                 justifyContent: 'center',
                 backgroundColor: '#fff',
                 width: '100%',
-                paddingVertical: 20,
+                paddingVertical: 10,
               }}>
               <Button
                 type={'outline'}
