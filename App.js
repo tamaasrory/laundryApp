@@ -15,14 +15,16 @@ import {createStackNavigator} from '@react-navigation/stack';
 import OrderScreen from './src/screens/OrderScreen';
 import OrderStore from './src/store/OrderStore';
 import CartScreen from './src/screens/CartScreen';
-import {StatusBar} from 'react-native';
 import LoginScreen from './src/screens/LoginScreen';
 import RegisterScreen from './src/screens/RegisterScreen';
 import ForgotPasswordScreen from './src/screens/ForgotPasswordScreen';
-import MainScreen from './src/screens/MainScreen';
 import MapsScreen from './src/screens/MapsScreen';
 import SyaratMemberScreen from './src/screens/SyaratMemberScreen';
 import KeuntunganScreen from './src/screens/KeuntunganScreen';
+import KatalogScreen from './src/screens/KatalogScreen';
+import HomeScreen from './src/screens/HomeScreen';
+import HistoryScreen from './src/screens/HistoryScreen';
+import AccountScreen from './src/screens/AccountScreen';
 
 // eslint-disable-next-line no-extend-native
 String.prototype.formatNumber =
@@ -64,7 +66,6 @@ const App: () => React$Node = () => {
   console.info('#render : ', 'App.js');
   return (
     <PaperProvider theme={theme}>
-      <StatusBar backgroundColor={theme.colors.statusBar} />
       <Provider store={LocationStore} orderStore={OrderStore}>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="LoginScreen">
@@ -85,12 +86,17 @@ const App: () => React$Node = () => {
             />
             <Stack.Screen
               name="MainScreen"
-              component={MainScreen}
+              component={HomeScreen}
               options={{headerShown: false}}
             />
             <Stack.Screen
               name="OrderScreen"
               component={OrderScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="HistoryScreen"
+              component={HistoryScreen}
               options={{headerShown: false}}
             />
             <Stack.Screen
@@ -101,6 +107,16 @@ const App: () => React$Node = () => {
             <Stack.Screen
               name="MapsScreen"
               component={MapsScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="KatalogScreen"
+              component={KatalogScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="AccountScreen"
+              component={AccountScreen}
               options={{headerShown: false}}
             />
             <Stack.Screen
