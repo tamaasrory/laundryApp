@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     color: theme.colors.secondary,
   },
   fnt_14_secondary: {
-    color: theme.colors.secondary,
+    color: '#000',
     fontSize: 14,
   },
   mp_lr_0: {
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   titleList: {
     fontSize: 14,
     fontWeight: 'normal',
-    color: theme.colors.secondary,
+    color: '#000',
   },
   subtitleList: {
     fontSize: 14,
