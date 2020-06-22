@@ -7,13 +7,7 @@ import styles from '../components/Styles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Badge, Button, Divider, ListItem, Text} from 'react-native-elements';
 import RestApi from '../router/Api';
-import {
-  Image,
-  StatusBar,
-  TouchableHighlight,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Animated, Image, StatusBar, TouchableOpacity, View} from 'react-native';
 import {theme} from '../core/theme';
 import User from '../store/User';
 import BottomSheet from 'reanimated-bottom-sheet';
@@ -21,6 +15,7 @@ import Path from '../router/Path';
 import TextInputMask from 'react-native-text-input-mask';
 import {inject, observer} from 'mobx-react';
 import ListOptions from '../components/ListOptions';
+import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 
 var moment = require('moment');
 
@@ -43,10 +38,16 @@ class KatalogScreen extends React.PureComponent {
     bsMaxHeight: 0,
     bsMidHeight: 0,
     openBs: false,
+    isLoading: false,
   };
 
   constructor(props) {
     super(props);
+  }
+
+  componentDidMount(): void {
+    this.runPlaceHolder();
+    this.getStatus();
     this.loadingData();
   }
 
@@ -57,16 +58,16 @@ class KatalogScreen extends React.PureComponent {
   }
 
   loadingData() {
-    this.getStatus();
+    this.setState({isLoading: true});
     console.log('response katalog run');
     RestApi.get('/katalog/all-active')
       .then(res => {
         console.log('response katalog', res.data.value);
-        this.setState({listData: res.data.value});
+        this.setState({listData: res.data.value, isLoading: false});
         this.syncKatalogWithCart(res.data.value);
       })
       .catch(err => {
-        this.setState({listData: []});
+        this.setState({listData: [], isLoading: false});
         console.log('error katalog', err);
       });
   }
@@ -384,7 +385,67 @@ class KatalogScreen extends React.PureComponent {
     </View>
   );
 
+  runPlaceHolder() {
+    if (
+      Array.isArray(this.loadingAnimated) &&
+      this.loadingAnimated.length > 0
+    ) {
+      Animated.parallel(
+        this.loadingAnimated.map(animate => {
+          if (animate && animate.getAnimated) {
+            return animate.getAnimated();
+          }
+          return null;
+        }),
+        {
+          stopTogether: false,
+        },
+      ).start(() => {
+        this.runPlaceHolder();
+      });
+    }
+  }
+
+  _renderShimmerList(numberRow) {
+    let shimmerRows = [];
+    for (let index = 0; index < numberRow; index++) {
+      shimmerRows.push(
+        <View style={{flexDirection: 'row', marginBottom: 25}}>
+          <View>
+            <ShimmerPlaceHolder
+              autoRun={true}
+              style={{width: 55, height: 55, borderRadius: 15}}
+            />
+          </View>
+          <View style={{alignSelf: 'center', marginLeft: 15}}>
+            <ShimmerPlaceHolder
+              autoRun={true}
+              style={{
+                width: '90%',
+                height: 20,
+                marginBottom: 7,
+                borderRadius: 7,
+              }}
+            />
+            <ShimmerPlaceHolder
+              autoRun={true}
+              style={{width: '55%', height: 15, borderRadius: 7}}
+            />
+          </View>
+        </View>,
+      );
+    }
+    return (
+      <View style={{paddingTop: 15, paddingLeft: 15, backgroundColor: '#fff'}}>
+        {shimmerRows}
+      </View>
+    );
+  }
+
+  loadingAnimated = [];
+
   render() {
+    this.loadingAnimated = [];
     console.info('#render : ', 'KatalogScreen.js');
     const {listData, bsMaxHeight, bsMidHeight} = this.state;
     let totalLaundry = 0;
@@ -394,7 +455,10 @@ class KatalogScreen extends React.PureComponent {
           this.screenHeight = event.nativeEvent.layout.height;
         }}
         style={{flexGrow: 1}}>
-        <StatusBar backgroundColor={theme.colors.tabOrderStatusBar} />
+        <StatusBar
+          backgroundColor={theme.colors.tabOrderStatusBar}
+          barStyle={'dark-content'}
+        />
         <View
           style={{
             flexDirection: 'row',
@@ -440,7 +504,9 @@ class KatalogScreen extends React.PureComponent {
           <FlatContainer
             onRefresh={() => this.loadingData()}
             style={{marginBottom: 50}}>
-            {listData.length ? (
+            {this.state.isLoading ? (
+              this._renderShimmerList(7)
+            ) : listData.length ? (
               listData.map((list, i) => {
                 let harga = 0;
 
@@ -503,7 +569,7 @@ class KatalogScreen extends React.PureComponent {
                     title={list.name}
                     titleStyle={[
                       styles.titleList,
-                      {fontSize: 15, fontWeight: 'bold'},
+                      {fontSize: 14, fontWeight: 'bold'},
                     ]}
                     subtitle={
                       <View style={{flexDirection: 'column'}}>
@@ -538,51 +604,53 @@ class KatalogScreen extends React.PureComponent {
             )}
           </FlatContainer>
         </View>
-        <View
-          style={{
-            justifyContent: 'flex-end',
-            marginBottom: 0,
-          }}>
+        {totalLaundry ? (
           <View
             style={{
-              position: 'absolute',
-              bottom: 0,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              width: '100%',
-              backgroundColor: '#009a32',
-              paddingVertical: 10,
-              paddingLeft: 20,
+              justifyContent: 'flex-end',
+              marginBottom: 0,
             }}>
-            <View style={{flexDirection: 'column'}}>
-              <Text style={{fontSize: 14, color: '#fff'}}>Total</Text>
-              <Text
-                style={{
-                  fontSize: 20,
-                  alignSelf: 'center',
-                  color: '#fff',
-                  marginTop: -3,
-                }}>
-                Rp{totalLaundry.toString().formatNumber()}
-              </Text>
+            <View
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                width: '100%',
+                backgroundColor: '#009a32',
+                paddingVertical: 10,
+                paddingLeft: 20,
+              }}>
+              <View style={{flexDirection: 'column'}}>
+                <Text style={{fontSize: 14, color: '#fff'}}>Total</Text>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    alignSelf: 'center',
+                    color: '#fff',
+                    marginTop: -3,
+                  }}>
+                  Rp{totalLaundry.toString().formatNumber()}
+                </Text>
+              </View>
+              <Button
+                type={'clear'}
+                title={'LANJUT'}
+                icon={
+                  <MaterialCommunityIcons
+                    name={'chevron-right'}
+                    size={24}
+                    color={'#fff'}
+                  />
+                }
+                iconRight={true}
+                titleStyle={{color: '#fff'}}
+                buttonStyle={{borderRadius: 50}}
+                onPress={() => this.props.navigation.navigate('CartScreen')}
+              />
             </View>
-            <Button
-              type={'clear'}
-              title={'LANJUT'}
-              icon={
-                <MaterialCommunityIcons
-                  name={'chevron-right'}
-                  size={24}
-                  color={'#fff'}
-                />
-              }
-              iconRight={true}
-              titleStyle={{color: '#fff'}}
-              buttonStyle={{borderRadius: 50}}
-              onPress={() => this.props.navigation.navigate('CartScreen')}
-            />
           </View>
-        </View>
+        ) : null}
         <BottomSheet
           ref={this.bs}
           snapPoints={[bsMaxHeight, bsMidHeight, 0]}
