@@ -106,7 +106,10 @@ class AccountScreen extends React.PureComponent {
     console.info('#render : ', this.constructor.name);
     return (
       <View style={{flexGrow: 1}}>
-        <StatusBar backgroundColor={theme.colors.tabAccountStatusBar} />
+        <StatusBar
+          backgroundColor={theme.colors.tabAccountStatusBar}
+          barStyle={'dark-content'}
+        />
         <View
           style={{
             flexDirection: 'row',
