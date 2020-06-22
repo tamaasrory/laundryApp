@@ -3,7 +3,7 @@ import FlatContainer from '../components/FlatContainer';
 import {Button, Divider, Input, Text} from 'react-native-elements';
 import styles from '../components/Styles';
 import DateTimePicker from '../components/DateTimePicker';
-import {TouchableHighlight, View} from 'react-native';
+import {Picker, TouchableHighlight, View} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import {theme} from '../core/theme';
@@ -19,13 +19,10 @@ class OrderScreen extends React.PureComponent {
   state = {
     // date picker
     timeJemput: new Date(),
-    timeAntar: new Date(),
     dateJemput: new Date(),
-    dateAntar: new Date(),
     // setter
     showJemput: false,
     modePickerJemput: 'date',
-    modePickerAntar: 'date',
 
     waktuJemput: null,
     noHp: null,
@@ -42,6 +39,12 @@ class OrderScreen extends React.PureComponent {
     showProgressDialog: false,
     showIncomplateDialog: false,
     showResponseDialog: false,
+    reangeWaktuJemput: [
+      {label: 'Pagi', jam_op: '07.00 - 10.00'},
+      {label: 'Siang', jam_op: '10.00 - 12.00'},
+      {label: 'Sore', jam_op: '14.00 - 17.00'},
+    ],
+    PickerSelectedVal: '',
   };
 
   /** @type LocationStore */
@@ -50,6 +53,10 @@ class OrderScreen extends React.PureComponent {
   constructor(props) {
     super(props);
     this.store = this.props.store;
+  }
+
+  getSelectedPickerValue(itemValue) {
+    console.log('Selected country is : ' + itemValue);
   }
 
   resetValue() {
@@ -129,7 +136,6 @@ class OrderScreen extends React.PureComponent {
   getData() {
     const {
       waktuJemput,
-      // waktuAntar,
       noHp,
       alamat,
       latitude,
@@ -205,6 +211,7 @@ class OrderScreen extends React.PureComponent {
           style={{
             flexDirection: 'row',
             paddingVertical: 8,
+            elevation: 4,
             backgroundColor: theme.colors.tabOrder,
           }}>
           <Button
@@ -247,33 +254,44 @@ class OrderScreen extends React.PureComponent {
                 ( Kapan laundry kamu mau dijemput? )
               </Text>
             </View>
-            <View style={styles.rowsBetween}>
-              <DateTimePicker
-                value={
-                  waktuJemput ? this.convertDate(dateJemput, '{D}/{M}/{Y}') : ''
-                }
-                onPress={() =>
-                  this.setState({showJemput: true, modePickerJemput: 'date'})
-                }
-                hint={'Tanggal'}
-                label={null}
-                icon={'calendar-outline'}
-                iconColor={'orange'}
-                style={{width: '58%'}}
-              />
-              <DateTimePicker
-                value={waktuJemput ? this.convertTime(timeJemput) : ''}
-                onPress={() =>
-                  this.setState({showJemput: true, modePickerJemput: 'time'})
-                }
-                hint={'Jam'}
-                label={null}
-                icon={'clock-outline'}
-                iconColor={'orange'}
-                style={{width: '40%'}}
-              />
+            <DateTimePicker
+              value={
+                waktuJemput ? this.convertDate(dateJemput, '{D}/{M}/{Y}') : ''
+              }
+              onPress={() =>
+                this.setState({showJemput: true, modePickerJemput: 'date'})
+              }
+              hint={'Tanggal'}
+              label={null}
+              icon={'calendar-outline'}
+              iconColor={'orange'}
+              textStyle={{color: '#000'}}
+            />
+            <View
+              style={{
+                borderBottomColor: '#fff',
+                backgroundColor: 'rgba(0,0,0,0.04)',
+                borderRadius: 15,
+                marginTop: 5,
+                paddingHorizontal: 5,
+              }}>
+              <Picker
+                mode={'dropdown'}
+                selectedValue={this.state.PickerSelectedVal}
+                onValueChange={(itemValue, itemIndex) => {
+                  this.setState({PickerSelectedVal: itemValue});
+                }}>
+                <Picker.Item label={'Pilih Waktu'} value={null} />
+                {this.state.reangeWaktuJemput.map(data => {
+                  return (
+                    <Picker.Item
+                      label={`${data.label} (${data.jam_op})`}
+                      value={data}
+                    />
+                  );
+                })}
+              </Picker>
             </View>
-
             <Divider style={[styles.divider, {marginVertical: 10}]} />
             <View style={{flexDirection: 'row'}}>
               <Text style={styles.textLabel}>Nomor Ponsel</Text>
