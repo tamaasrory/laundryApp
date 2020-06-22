@@ -41,33 +41,28 @@ class HomeScreen extends React.PureComponent {
   state = {entries: null};
   ENTRIES1 = [
     {
-      title: 'Beautiful and dramatic Antelope Canyon',
-      subtitle: 'Lorem ipsum dolor sit amet et nuncat mergitur',
-      illustration:
+      title: 'Dummy Discount Banner',
+      url:
         'https://cdn.dribbble.com/users/1998175/screenshots/11803852/media/3222415b6ceb672e04c57b4e86650594.jpg',
     },
     {
-      title: 'Earlier this morning, NYC',
-      subtitle: 'Lorem ipsum dolor sit amet',
-      illustration:
+      title: 'Dummy Discount Banner',
+      url:
         'https://cdn.dribbble.com/users/1998175/screenshots/11803852/media/3222415b6ceb672e04c57b4e86650594.jpg',
     },
     {
-      title: 'White Pocket Sunset',
-      subtitle: 'Lorem ipsum dolor sit amet et nuncat ',
-      illustration:
+      title: 'Dummy Discount Banner',
+      url:
         'https://cdn.dribbble.com/users/1998175/screenshots/11803852/media/3222415b6ceb672e04c57b4e86650594.jpg',
     },
     {
-      title: 'Acrocorinth, Greece',
-      subtitle: 'Lorem ipsum dolor sit amet et nuncat mergitur',
-      illustration:
+      title: 'Dummy Discount Banner',
+      url:
         'https://cdn.dribbble.com/users/1998175/screenshots/11803852/media/3222415b6ceb672e04c57b4e86650594.jpg',
     },
     {
-      title: 'The lone tree, majestic landscape of New Zealand',
-      subtitle: 'Lorem ipsum dolor sit amet',
-      illustration:
+      title: 'Dummy Discount Banner',
+      url:
         'https://cdn.dribbble.com/users/1998175/screenshots/11803852/media/3222415b6ceb672e04c57b4e86650594.jpg',
     },
   ];
@@ -88,22 +83,27 @@ class HomeScreen extends React.PureComponent {
     return (
       <View style={style.carousel_item}>
         <ParallaxImage
-          source={{uri: item.illustration}}
+          source={{uri: item.url}}
           containerStyle={style.carousel_image_container}
           style={style.carousel_image}
           parallaxFactor={0}
           {...parallaxProps}
         />
-        <Text
+        <View
           style={{
-            bottom: 10,
-            marginLeft: 10,
-            color: '#fff',
+            bottom: 0,
             position: 'absolute',
-          }}
-          numberOfLines={2}>
-          {item.title}
-        </Text>
+            width: '100%',
+            borderBottomLeftRadius: 8,
+            borderBottomRightRadius: 8,
+            backgroundColor: '#007aea',
+            paddingVertical: 10,
+            paddingHorizontal: 15,
+          }}>
+          <Text style={{color: '#fff'}} numberOfLines={2}>
+            {item.title}
+          </Text>
+        </View>
       </View>
     );
   };
@@ -233,6 +233,7 @@ class HomeScreen extends React.PureComponent {
                       padding: 10,
                       borderRadius: 15,
                       width: 48,
+                      height: 48,
                       backgroundColor: data.icon.color,
                       alignSelf: 'center',
                     }}>
@@ -250,6 +251,16 @@ class HomeScreen extends React.PureComponent {
               />
             );
           })}
+          <Text
+            style={{
+              color: 'grey',
+              fontSize: 10,
+              alignSelf: 'center',
+              bottom: 20,
+              position: 'absolute',
+            }}>
+            v.1.0 BETA
+          </Text>
         </View>
       </FlatContainer>
     );
