@@ -37,6 +37,7 @@ class DateTimePicker extends React.PureComponent {
               borderBottomColor: '#fff',
               backgroundColor: 'rgba(0,0,0,0.04)',
               borderRadius: 15,
+              paddingVertical: 4,
               paddingHorizontal: 8,
             }}
             disabled
