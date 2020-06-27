@@ -1,5 +1,11 @@
 import React, {memo, useState} from 'react';
-import {TouchableOpacity, StyleSheet, Text, View} from 'react-native';
+import {
+  TouchableOpacity,
+  StyleSheet,
+  Text,
+  View,
+  StatusBar,
+} from 'react-native';
 import CenterContainer from '../components/CenterContainer';
 import Logo from '../components/Logo';
 import Button from '../components/Button';
@@ -68,6 +74,10 @@ const LoginScreen = ({navigation}) => {
 
   return (
     <CenterContainer>
+      <StatusBar
+        barStyle={'dark-content'}
+        backgroundColor={theme.colors.white}
+      />
       <Logo />
       {errorLogin.value ? (
         <View
