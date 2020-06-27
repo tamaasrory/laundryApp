@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    padding: 20,
+    padding: 25,
     width: '100%',
     alignSelf: 'center',
     alignItems: 'center',
