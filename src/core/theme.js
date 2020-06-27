@@ -15,8 +15,11 @@ export const theme = {
     tabOrderStatusBar: '#fff', // '#0071e2', // '#188944',
     tabHistory: /*'#0086ff', */ '#7d8397',
     tabHistoryStatusBar: /*'#007aea', */ '#6d7386',
+    tabProgress: /*'#0086ff', */ '#4aa100',
+    tabProgressStatusBar: /*'#007aea', */ '#4aa100',
     tabAccount: /*'#0086ff', */ '#fff',
     tabAccountStatusBar: /*'#007aea', */ '#fff',
     textToolBar: '#000',
+    white: '#fff',
   },
 };
