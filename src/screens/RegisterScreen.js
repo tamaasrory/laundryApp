@@ -1,5 +1,5 @@
 import React, {memo, useState} from 'react';
-import {View, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, StyleSheet, TouchableOpacity, StatusBar} from 'react-native';
 import TextInput from '../components/TextInput';
 import {theme} from '../core/theme';
 import {
@@ -58,6 +58,10 @@ const RegisterScreen = ({navigation}) => {
   console.info('#render : ', 'RegisterScreen.js');
   return (
     <View style={{backgroundColor: '#fff', flexGrow: 1}}>
+      <StatusBar
+        barStyle={'light-content'}
+        backgroundColor={theme.colors.primary}
+      />
       <View
         style={{
           flexDirection: 'row',
