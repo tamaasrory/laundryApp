@@ -25,6 +25,8 @@ import KatalogScreen from './src/screens/KatalogScreen';
 import HomeScreen from './src/screens/HomeScreen';
 import HistoryScreen from './src/screens/HistoryScreen';
 import AccountScreen from './src/screens/AccountScreen';
+import ProgressScreen from './src/screens/ProgressScreen';
+import SplashScreen from './src/screens/SplashScreen';
 
 // eslint-disable-next-line no-extend-native
 String.prototype.formatNumber =
@@ -68,7 +70,12 @@ const App: () => React$Node = () => {
     <PaperProvider theme={theme}>
       <Provider store={LocationStore} orderStore={OrderStore}>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="LoginScreen">
+          <Stack.Navigator initialRouteName="SplashScreen">
+            <Stack.Screen
+              name="SplashScreen"
+              component={SplashScreen}
+              options={{headerShown: false}}
+            />
             <Stack.Screen
               name="LoginScreen"
               component={LoginScreen}
@@ -97,6 +104,11 @@ const App: () => React$Node = () => {
             <Stack.Screen
               name="HistoryScreen"
               component={HistoryScreen}
+              options={{headerShown: false}}
+            />
+            <Stack.Screen
+              name="ProgressScreen"
+              component={ProgressScreen}
               options={{headerShown: false}}
             />
             <Stack.Screen

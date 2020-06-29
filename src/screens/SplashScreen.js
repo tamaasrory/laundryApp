@@ -17,7 +17,7 @@ const SplashScreen = ({navigation}) => {
           routes: [{name: 'LoginScreen'}],
         });
       }
-    }, 2000);
+    }, 1000);
   });
 
   console.info('#render : ', 'SplashScreen.js');

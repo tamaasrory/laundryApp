@@ -10,15 +10,14 @@ import {theme} from '../core/theme';
 import {inject, observer} from 'mobx-react';
 import {ProgressBar} from '@react-native-community/progress-bar-android';
 import AlertDialog from '../components/AlertDialog';
-import RestApi from '../router/Api';
 import TextInputMask from 'react-native-text-input-mask';
+import RestApi from '../router/Api';
 
 @inject('store', 'orderStore')
 @observer
 class OrderScreen extends React.PureComponent {
   state = {
     // date picker
-    timeJemput: new Date(),
     dateJemput: new Date(),
     // setter
     showJemput: false,
@@ -30,6 +29,7 @@ class OrderScreen extends React.PureComponent {
     latitude: null,
     longitude: null,
     catatan: null,
+    selectedRangeWaktu: '',
 
     response: {
       icon: {name: 'check', color: '#36cb04'},
@@ -39,12 +39,11 @@ class OrderScreen extends React.PureComponent {
     showProgressDialog: false,
     showIncomplateDialog: false,
     showResponseDialog: false,
-    reangeWaktuJemput: [
-      {label: 'Pagi', jam_op: '07.00 - 10.00'},
-      {label: 'Siang', jam_op: '10.00 - 12.00'},
-      {label: 'Sore', jam_op: '14.00 - 17.00'},
-    ],
-    PickerSelectedVal: '',
+
+    isLoading: true,
+    errorLoadingData: false,
+
+    reangeWaktuJemput: [],
   };
 
   /** @type LocationStore */
@@ -53,10 +52,38 @@ class OrderScreen extends React.PureComponent {
   constructor(props) {
     super(props);
     this.store = this.props.store;
+    this.loadingWaktuJemput();
   }
 
-  getSelectedPickerValue(itemValue) {
-    console.log('Selected country is : ' + itemValue);
+  loadingWaktuJemput() {
+    this.setState({isLoading: true, errorLoadingData: false});
+    RestApi.get('/wj/all')
+      .then(res => {
+        let tmp = res.data.value.map(data => {
+          data.mulai = data.mulai.substr(0, 5);
+          data.berakhir = data.berakhir.substr(0, 5);
+          return data;
+        });
+
+        this.setState({
+          reangeWaktuJemput: tmp,
+          isLoading: false,
+          errorLoadingData: false,
+        });
+        console.log('res', res);
+      })
+      .catch(err => {
+        console.log('error res', err);
+        this.setState({
+          reangeWaktuJemput: [
+            {label: 'Pagi', mulai: '07:00', berakhir: '10:00'},
+            {label: 'Siang', mulai: '10:00', berakhir: '12:00'},
+            {label: 'Sore', mulai: '14:00', berakhir: '17:00'},
+          ],
+          isLoading: false,
+          errorLoadingData: true,
+        });
+      });
   }
 
   resetValue() {
@@ -75,16 +102,11 @@ class OrderScreen extends React.PureComponent {
     this.store.callbackDataTrigger(() => this.updateAlamat());
   }
 
-  onChangeTimeJemput = (event, selected) => {
-    const current = selected || this.state.timeJemput;
-    this.setState({showJemput: false, timeJemput: current});
-    this.setWaktu('waktuJemput', 'dateJemput', 'timeJemput');
-  };
-
   onChangeDateJemput = (event, selected) => {
     const current = selected || this.state.dateJemput;
-    this.setState({showJemput: false, dateJemput: current});
-    this.setWaktu('waktuJemput', 'dateJemput', 'timeJemput');
+    let date = this.state.dateJemput;
+    date = date ? this.convertDate(date, '{Y}-{M}-{D}') : date;
+    this.setState({showJemput: false, dateJemput: current, waktuJemput: date});
   };
 
   convert = v => (v.toString().length === 2 ? v : `0${v}`);
@@ -99,30 +121,6 @@ class OrderScreen extends React.PureComponent {
       return '';
     }
   };
-
-  convertTime = value =>
-    this.convert(value.getHours()) + ':' + this.convert(value.getMinutes());
-
-  setWaktu(newKey, keyDate, keyTime) {
-    let val = {};
-    let date = '';
-    let time = '';
-
-    // eslint-disable-next-line no-eval
-    eval(`date = this.state.${keyDate}`);
-    // eslint-disable-next-line no-eval
-    eval(`time = this.state.${keyTime}`);
-
-    date = date ? this.convertDate(date, '{Y}-{M}-{D}') : date;
-    time = time ? this.convertTime(time) : time;
-
-    // eslint-disable-next-line no-eval
-    eval(`val.${newKey}='${date} ${time}:00'`);
-
-    this.setState(val);
-  }
-
-  isSelectedPesanan = key => this.state.pesanan === key;
 
   updateAlamat() {
     const {getGeocode, getLatitude, getLongitude} = this.store;
@@ -141,11 +139,21 @@ class OrderScreen extends React.PureComponent {
       latitude,
       longitude,
       catatan,
+      selectedRangeWaktu,
     } = this.state;
-    if (waktuJemput && noHp && alamat && latitude && longitude && catatan) {
+    if (
+      waktuJemput &&
+      noHp &&
+      alamat &&
+      latitude &&
+      longitude &&
+      catatan &&
+      selectedRangeWaktu
+    ) {
       return {
         barang: this.props.orderStore.getData,
-        waktuJemput: waktuJemput,
+        tglJemput: waktuJemput,
+        waktuJemput: selectedRangeWaktu,
         noHp: noHp,
         alamat: alamat,
         latitude: latitude,
@@ -158,7 +166,8 @@ class OrderScreen extends React.PureComponent {
   }
 
   sendOrder() {
-    console.log(JSON.stringify(this.getData()));
+    // console.log('test order', JSON.stringify(this.getData()));
+
     let payload = this.getData();
     if (payload) {
       this.setState({showProgressDialog: true});
@@ -204,7 +213,7 @@ class OrderScreen extends React.PureComponent {
       alamat,
     } = this.state;
     console.info('#render : ', this.constructor.name);
-    console.log('order Data ==> ', this.props.orderStore.getData);
+
     return (
       <View style={{backgroundColor: '#fff', flexGrow: 1}}>
         <View
@@ -272,20 +281,21 @@ class OrderScreen extends React.PureComponent {
                 borderBottomColor: '#fff',
                 backgroundColor: 'rgba(0,0,0,0.04)',
                 borderRadius: 15,
+                paddingLeft: 5,
+                marginRight: 0,
                 marginTop: 5,
-                paddingHorizontal: 5,
               }}>
               <Picker
                 mode={'dropdown'}
-                selectedValue={this.state.PickerSelectedVal}
+                selectedValue={this.state.selectedRangeWaktu}
                 onValueChange={(itemValue, itemIndex) => {
-                  this.setState({PickerSelectedVal: itemValue});
+                  this.setState({selectedRangeWaktu: itemValue});
                 }}>
                 <Picker.Item label={'Pilih Waktu'} value={null} />
                 {this.state.reangeWaktuJemput.map(data => {
                   return (
                     <Picker.Item
-                      label={`${data.label} (${data.jam_op})`}
+                      label={`${data.label} (${data.mulai} - ${data.berakhir})`}
                       value={data}
                     />
                   );
@@ -300,7 +310,6 @@ class OrderScreen extends React.PureComponent {
             <View
               style={{
                 flexDirection: 'row',
-                marginRight: 10,
                 borderBottomColor: 'grey',
                 borderBottomWidth: 1,
               }}>
@@ -314,7 +323,6 @@ class OrderScreen extends React.PureComponent {
               <TextInputMask
                 placeholder={'0812-xxxx-xxxx'}
                 onChangeText={(formatted, extracted) => {
-                  console.log('nomer hp', extracted);
                   this.setState({noHp: extracted});
                 }}
                 defaultValue={noHp}
@@ -340,7 +348,7 @@ class OrderScreen extends React.PureComponent {
                 inputStyle={[styles.mp_lr_0, {fontSize: 13}]}
                 multiline
                 maxLength={250}
-                containerStyle={styles.mp_l_0}
+                containerStyle={[styles.mp_lr_0, styles.mp_l_0]}
                 leftIconContainerStyle={styles.ml0_ph10}
                 disabled
                 leftIcon={
@@ -368,7 +376,7 @@ class OrderScreen extends React.PureComponent {
               multiline
               maxLength={160}
               clearButtonMode={'always'}
-              containerStyle={styles.mp_l_0}
+              containerStyle={[styles.mp_lr_0, styles.mp_l_0]}
               leftIconContainerStyle={styles.ml0_ph10}
               leftIcon={
                 <MaterialCommunityIcons
@@ -398,37 +406,31 @@ class OrderScreen extends React.PureComponent {
               />
             )}
           </FlatContainer>
+
           <View
             style={{
-              justifyContent: 'flex-end',
-              marginBottom: 0,
+              position: 'absolute',
+              bottom: 0,
+              backgroundColor: '#fff',
+              width: '100%',
+              paddingVertical: 15,
+              paddingHorizontal: 25,
             }}>
-            <View
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                flexDirection: 'row',
-                justifyContent: 'center',
-                backgroundColor: '#fff',
-                width: '100%',
-                paddingVertical: 10,
-              }}>
-              <Button
-                type={'outline'}
-                title={'Kirim Laundry'}
-                titleStyle={{paddingRight: 5, fontSize: 17, color: '#1dbc60'}}
-                buttonStyle={{width: '100%', borderColor: '#1dbc60'}}
-                icon={
-                  <MaterialCommunityIcons
-                    size={24}
-                    name={'arrow-top-right'}
-                    color={'#1dbc60'}
-                  />
-                }
-                iconRight
-                onPress={() => this.sendOrder()}
-              />
-            </View>
+            <Button
+              type={'outline'}
+              title={'Kirim Laundry'}
+              titleStyle={{fontSize: 17, color: '#1dbc60'}}
+              buttonStyle={{width: '100%', borderColor: '#1dbc60'}}
+              icon={
+                <MaterialCommunityIcons
+                  size={24}
+                  name={'arrow-top-right'}
+                  color={'#1dbc60'}
+                />
+              }
+              iconRight
+              onPress={() => this.sendOrder()}
+            />
           </View>
         </View>
         <AlertDialog
@@ -444,7 +446,7 @@ class OrderScreen extends React.PureComponent {
           visible={this.state.showResponseDialog}
           scrollable={false}
           onDismiss={() => this.setState({showResponseDialog: false})}
-          dismissable={true}>
+          dismissable={false}>
           <View style={{alignItems: 'center'}}>
             <MaterialCommunityIcons
               name={this.state.response.icon.name}
@@ -460,7 +462,7 @@ class OrderScreen extends React.PureComponent {
               buttonStyle={{paddingHorizontal: 25}}
               onPress={() => {
                 this.setState({showResponseDialog: false});
-                this.props.navigation.pop(2);
+                this.props.navigation.pop(3);
               }}
             />
           </View>

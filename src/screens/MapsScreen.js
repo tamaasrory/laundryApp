@@ -17,6 +17,7 @@ import {
 } from 'react-native-permissions';
 import {inject, observer} from 'mobx-react';
 import {Button} from 'react-native-elements';
+import {theme} from '../core/theme';
 
 @inject('store')
 @observer
@@ -162,7 +163,8 @@ class MapsScreen extends React.PureComponent {
             title={'OKE'}
             disabled={disabledBtnLanjutkan}
             buttonStyle={styles.btnLanjutkan}
-            type={'clear'}
+            type={'solid'}
+            titleStyle={{color: '#fff'}}
             onPress={() => {
               this.dataStore.dataTrigger();
               this.props.navigation.goBack();
@@ -210,6 +212,8 @@ const styles = StyleSheet.create({
   },
   btnLanjutkan: {
     flex: 1,
+    borderRadius: 15,
+    backgroundColor: theme.colors.primary,
     marginHorizontal: 15,
     marginBottom: 15,
   },

@@ -5,15 +5,8 @@ import React from 'react';
 import FlatContainer from '../components/FlatContainer';
 import styles from '../components/Styles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {
-  Badge,
-  Button,
-  Divider,
-  Header,
-  ListItem,
-  Text,
-} from 'react-native-elements';
-import {Image, TouchableOpacity, View} from 'react-native';
+import {Badge, Button, Divider, ListItem, Text} from 'react-native-elements';
+import {Image, Keyboard, TouchableOpacity, View} from 'react-native';
 import {theme} from '../core/theme';
 import User from '../store/User';
 import BottomSheet from 'reanimated-bottom-sheet';
@@ -223,6 +216,7 @@ class CartScreen extends React.PureComponent {
       setData(tmpOrder);
       console.log('order list ==> ' + getData.length, JSON.stringify(getData));
       this.bs.current.snapTo(2);
+      Keyboard.dismiss();
     }
   }
 
@@ -264,65 +258,72 @@ class CartScreen extends React.PureComponent {
             containerStyle={val => ({
               paddingVertical: 10,
               borderRadius: 15,
-              backgroundColor: val ? 'rgba(0,112,255,0.05)' : '#fff',
+              backgroundColor: val ? 'rgba(70,153,0,0.15)' : '#fff',
             })}
           />
           <Divider style={styles.divider} />
+          <Text style={[styles.textLabel, {paddingHorizontal: 15}]}>
+            Berapa {this.state.selectedBarang.detail.satuan} ?
+          </Text>
           <View
             style={[
               styles.rowsBetween,
               {marginTop: 10, paddingHorizontal: 15},
             ]}>
-            <View style={{flexDirection: 'column', marginTop: -10}}>
-              <Text style={styles.textLabel}>
-                Berapa {this.state.selectedBarang.detail.satuan} ?
-              </Text>
-              <View style={{flexDirection: 'row'}}>
-                <TextInputMask
-                  onChangeText={(formatted, extracted) => {
-                    this.setState({jumlahPesanan: formatted});
-                  }}
-                  defaultValue={this.state.jumlahPesanan.toString()}
-                  keyboardType={'decimal-pad'}
-                  style={{
-                    minWidth: 80,
-                    maxWidth: 100,
-                    borderBottomColor: 'grey',
-                    borderBottomWidth: 1,
-                    textAlign: 'center',
-                    fontSize: 16,
-                    paddingVertical: 2,
-                  }}
-                  mask={'[9999],[99]'}
-                />
-                <Badge
-                  value={this.state.selectedBarang.detail.satuan.toUpperCase()}
-                  containerStyle={{justifyContent: 'center'}}
-                  badgeStyle={{
-                    height: 30,
-                    paddingHorizontal: 10,
-                    backgroundColor: '#eee',
-                  }}
-                  textStyle={{fontSize: 14, color: theme.colors.secondary}}
-                />
-              </View>
-            </View>
-            <View style={{justifyContent: 'center'}}>
-              <Button
-                type={'outline'}
-                buttonStyle={{borderColor: '#1dbc60'}}
-                icon={
-                  <MaterialCommunityIcons
-                    name={'check-circle'}
-                    size={24}
-                    color={'#1dbc60'}
-                  />
-                }
-                onPress={() => this.btnTambah()}
-                titleStyle={{marginLeft: 2, color: '#1dbc60'}}
-                title={'TAMBAH'}
+            <View
+              style={{
+                flexDirection: 'row',
+                backgroundColor: '#eee',
+                borderRadius: 15,
+                paddingVertical: 5,
+              }}>
+              <TextInputMask
+                onChangeText={(formatted, extracted) => {
+                  this.setState({jumlahPesanan: formatted});
+                }}
+                defaultValue={this.state.jumlahPesanan.toString()}
+                keyboardType={'decimal-pad'}
+                style={{
+                  minWidth: 80,
+                  maxWidth: 100,
+                  textAlign: 'center',
+                  fontSize: 18,
+                  paddingVertical: 2,
+                }}
+                mask={'[9999],[99]'}
+              />
+              <Badge
+                value={this.state.selectedBarang.detail.satuan.toUpperCase()}
+                containerStyle={{justifyContent: 'center'}}
+                badgeStyle={{
+                  height: 30,
+                  paddingHorizontal: 10,
+                  backgroundColor: '#eee',
+                  borderWidth: 0,
+                }}
+                textStyle={{fontSize: 14, color: theme.colors.secondary}}
               />
             </View>
+            <Button
+              type={'solid'}
+              disabled={!parseFloat(this.state.jumlahPesanan)}
+              buttonStyle={{
+                borderColor: '#1dbc60',
+                backgroundColor: '#1dbc60',
+                borderRadius: 15,
+                paddingHorizontal: 15,
+              }}
+              icon={
+                <MaterialCommunityIcons
+                  name={'check-circle'}
+                  size={24}
+                  color={'#fff'}
+                />
+              }
+              onPress={() => this.btnTambah()}
+              titleStyle={{marginLeft: 2, color: '#fff'}}
+              title={'UBAH'}
+            />
           </View>
         </View>
       ) : null}
@@ -445,8 +446,8 @@ class CartScreen extends React.PureComponent {
                         }}>
                         {list.jumlah}
                       </Text>
-                      <Text style={{fontSize: 11, textAlign: 'center'}}>
-                        {list.detail.satuan}
+                      <Text style={{fontSize: 12, textAlign: 'center'}}>
+                        {list.detail.satuan.toUpperCase()}
                       </Text>
                     </View>
                   }

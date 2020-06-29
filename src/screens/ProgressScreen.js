@@ -18,7 +18,7 @@ import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 
 @inject('orderStore')
 @observer
-class HistoryScreen extends React.PureComponent {
+class ProgressScreen extends React.PureComponent {
   screenHeight = 0;
   bs = React.createRef();
   state = {
@@ -37,6 +37,7 @@ class HistoryScreen extends React.PureComponent {
     pesanBatal: 'Batalkan Order Laundry Sekarang ?',
     batalID: null,
     openBs: false,
+
     isLoading: true,
     errorLoadingData: false,
   };
@@ -286,8 +287,34 @@ class HistoryScreen extends React.PureComponent {
           <Text style={styles.textLabel}>Catatan</Text>
           <Text style={styles.subtitleList}>{detail.catatan}</Text>
         </View>
+        <View style={{marginVertical: 15}}>
+          <Button
+            title={'Batalkan'}
+            type={'outline'}
+            disabled={!JSON.stringify(['1']).includes(status)}
+            buttonStyle={{borderColor: theme.colors.accent}}
+            titleStyle={{color: theme.colors.accent}}
+            onPress={() => {
+              this.setState({alertVisible: true, batalID: ido});
+            }}
+          />
+        </View>
       </View>
     );
+  }
+
+  btnBatalkan() {
+    const oldPesan = this.state.pesanBatal;
+    this.setState({pesanBatal: 'Sedang Membatalkan Orderan Anda'});
+    RestApi.post('/order/batalkan', {id: this.state.batalID})
+      .then(response => {
+        this.setState({batalID: null, pesanBatal: oldPesan});
+        this.bs.current.snapTo(2);
+        this.loadingData();
+      })
+      .catch(e => {
+        console.log('errorRespon', e);
+      });
   }
 
   renderContent = () => (
@@ -353,7 +380,6 @@ class HistoryScreen extends React.PureComponent {
     ];
     return status[key - 1];
   }
-
   _renderShimmerList(numberRow) {
     let shimmerRows = [];
     for (let index = 0; index < numberRow; index++) {
@@ -410,12 +436,12 @@ class HistoryScreen extends React.PureComponent {
           this.screenHeight = event.nativeEvent.layout.height;
         }}
         style={{flexGrow: 1}}>
-        <StatusBar backgroundColor={theme.colors.tabHistoryStatusBar} />
+        <StatusBar backgroundColor={theme.colors.tabProgressStatusBar} />
         <View
           style={{
             flexDirection: 'row',
             paddingVertical: 8,
-            backgroundColor: theme.colors.tabHistory,
+            backgroundColor: theme.colors.tabProgress,
           }}>
           <Button
             type={'clear'}
@@ -435,7 +461,9 @@ class HistoryScreen extends React.PureComponent {
               justifyContent: 'center',
               paddingHorizontal: 15,
             }}>
-            <Text style={[styles.textHeader, {color: '#fff'}]}>Riwayat</Text>
+            <Text style={[styles.textHeader, {color: '#fff'}]}>
+              Sedang Diproses
+            </Text>
           </View>
         </View>
         <View
@@ -520,6 +548,28 @@ class HistoryScreen extends React.PureComponent {
             )}
           </FlatContainer>
         </View>
+        <AlertDialog
+          dismissable={true}
+          onDismiss={() => {
+            this.setState({alertVisible: false});
+          }}
+          visible={this.state.alertVisible}
+          title="Pesan"
+          btnLeft={{
+            title: 'Tidak',
+            onPress: () => {
+              this.setState({alertVisible: false});
+            },
+          }}
+          btnRight={{
+            title: 'Ya',
+            onPress: () => {
+              this.btnBatalkan();
+              this.setState({alertVisible: false});
+            },
+          }}>
+          <Text>{this.state.pesanBatal}</Text>
+        </AlertDialog>
         <BottomSheet
           ref={this.bs}
           snapPoints={[bsMaxHeight, bsMidHeight, 0]}
@@ -552,4 +602,4 @@ class HistoryScreen extends React.PureComponent {
   }
 }
 
-export default HistoryScreen;
+export default ProgressScreen;

@@ -7,7 +7,14 @@ import styles from '../components/Styles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Badge, Button, Divider, ListItem, Text} from 'react-native-elements';
 import RestApi from '../router/Api';
-import {Animated, Image, StatusBar, TouchableOpacity, View} from 'react-native';
+import {
+  Animated,
+  Image,
+  StatusBar,
+  TouchableOpacity,
+  View,
+  Keyboard,
+} from 'react-native';
 import {theme} from '../core/theme';
 import User from '../store/User';
 import BottomSheet from 'reanimated-bottom-sheet';
@@ -39,6 +46,9 @@ class KatalogScreen extends React.PureComponent {
     bsMidHeight: 0,
     openBs: false,
     isLoading: false,
+    errorLoadingData: false,
+
+    checked: false,
   };
 
   constructor(props) {
@@ -58,16 +68,24 @@ class KatalogScreen extends React.PureComponent {
   }
 
   loadingData() {
-    this.setState({isLoading: true});
+    this.setState({isLoading: true, errorLoadingData: false});
     console.log('response katalog run');
     RestApi.get('/katalog/all-active')
       .then(res => {
         console.log('response katalog', res.data.value);
-        this.setState({listData: res.data.value, isLoading: false});
+        this.setState({
+          listData: res.data.value,
+          isLoading: false,
+          errorLoadingData: false,
+        });
         this.syncKatalogWithCart(res.data.value);
       })
       .catch(err => {
-        this.setState({listData: [], isLoading: false});
+        this.setState({
+          listData: [],
+          isLoading: false,
+          errorLoadingData: true,
+        });
         console.log('error katalog', err);
       });
   }
@@ -150,7 +168,8 @@ class KatalogScreen extends React.PureComponent {
       kategori: kategori,
       jumlahPesanan: dataSelected.jumlah
         ? dataSelected.jumlah.toString().formatNumber()
-        : 1,
+        : 0,
+      checked: !!dataSelected.jumlah,
       selectedKategori: dataSelected.selectedKategori
         ? dataSelected.selectedKategori
         : null,
@@ -268,6 +287,7 @@ class KatalogScreen extends React.PureComponent {
       setData(tmpOrder);
       console.log('order list ==> ' + getData.length, JSON.stringify(getData));
       this.bs.current.snapTo(2);
+      Keyboard.dismiss();
     }
   }
 
@@ -288,7 +308,7 @@ class KatalogScreen extends React.PureComponent {
         <View
           style={{
             paddingHorizontal: 5,
-            paddingBottom: 15,
+            paddingBottom: 25,
             backgroundColor: '#fff',
           }}>
           <View style={[styles.rowsBetween, {paddingHorizontal: 15}]}>
@@ -309,10 +329,15 @@ class KatalogScreen extends React.PureComponent {
             containerStyle={val => ({
               paddingVertical: 10,
               borderRadius: 15,
-              backgroundColor: val ? 'rgba(0,112,255,0.06)' : '#fff',
+              backgroundColor: val ? 'rgba(70,153,0,0.15)' : '#fff',
             })}
           />
           <Divider style={styles.divider} />
+
+          <Text style={[styles.textLabel, {paddingHorizontal: 15}]}>
+            Berapa {this.state.selectedBarang.detail.satuan} ?
+          </Text>
+
           <View
             style={{
               flexDirection: 'row',
@@ -321,56 +346,60 @@ class KatalogScreen extends React.PureComponent {
               paddingHorizontal: 15,
               marginBottom: 7,
             }}>
-            <View style={{flexDirection: 'column', marginTop: -10}}>
-              <Text style={styles.textLabel}>
-                Berapa {this.state.selectedBarang.detail.satuan} ?
-              </Text>
-              <View style={{flexDirection: 'row'}}>
-                <TextInputMask
-                  onChangeText={(formatted, extracted) => {
-                    this.setState({jumlahPesanan: formatted});
-                  }}
-                  defaultValue={this.state.jumlahPesanan.toString()}
-                  keyboardType={'decimal-pad'}
-                  style={{
-                    minWidth: 80,
-                    maxWidth: 100,
-                    borderBottomColor: 'grey',
-                    borderBottomWidth: 1,
-                    textAlign: 'center',
-                    fontSize: 16,
-                    paddingVertical: 2,
-                  }}
-                  mask={'[9999],[99]'}
-                />
-                <Badge
-                  value={this.state.selectedBarang.detail.satuan.toUpperCase()}
-                  containerStyle={{justifyContent: 'center'}}
-                  badgeStyle={{
-                    height: 30,
-                    paddingHorizontal: 10,
-                    backgroundColor: '#eee',
-                  }}
-                  textStyle={{fontSize: 14, color: theme.colors.secondary}}
-                />
-              </View>
-            </View>
-            <View style={{justifyContent: 'center'}}>
-              <Button
-                type={'outline'}
-                buttonStyle={{borderColor: '#1dbc60'}}
-                icon={
-                  <MaterialCommunityIcons
-                    name={'check-circle'}
-                    size={24}
-                    color={'#1dbc60'}
-                  />
-                }
-                onPress={() => this.btnTambah()}
-                titleStyle={{marginLeft: 2, color: '#1dbc60'}}
-                title={'TAMBAH'}
+            <View
+              style={{
+                flexDirection: 'row',
+                backgroundColor: '#eee',
+                borderRadius: 15,
+                paddingVertical: 5,
+              }}>
+              <TextInputMask
+                onChangeText={(formatted, extracted) => {
+                  this.setState({jumlahPesanan: formatted});
+                }}
+                defaultValue={this.state.jumlahPesanan.toString()}
+                keyboardType={'decimal-pad'}
+                style={{
+                  minWidth: 80,
+                  maxWidth: 100,
+                  textAlign: 'center',
+                  fontSize: 18,
+                  paddingVertical: 2,
+                }}
+                mask={'[9999],[99]'}
+              />
+              <Badge
+                value={this.state.selectedBarang.detail.satuan.toUpperCase()}
+                containerStyle={{justifyContent: 'center'}}
+                badgeStyle={{
+                  height: 30,
+                  paddingHorizontal: 10,
+                  backgroundColor: '#eee',
+                  borderWidth: 0,
+                }}
+                textStyle={{fontSize: 14, color: theme.colors.secondary}}
               />
             </View>
+            <Button
+              type={'solid'}
+              disabled={!parseFloat(this.state.jumlahPesanan)}
+              buttonStyle={{
+                borderColor: '#1dbc60',
+                backgroundColor: '#1dbc60',
+                borderRadius: 15,
+                paddingHorizontal: 15,
+              }}
+              icon={
+                <MaterialCommunityIcons
+                  name={'check-circle'}
+                  size={24}
+                  color={'#fff'}
+                />
+              }
+              onPress={() => this.btnTambah()}
+              titleStyle={{marginLeft: 2, color: '#fff'}}
+              title={this.state.checked ? 'UBAH' : 'TAMBAH'}
+            />
           </View>
         </View>
       )}
@@ -447,7 +476,13 @@ class KatalogScreen extends React.PureComponent {
   render() {
     this.loadingAnimated = [];
     console.info('#render : ', 'KatalogScreen.js');
-    const {listData, bsMaxHeight, bsMidHeight} = this.state;
+    const {
+      listData,
+      bsMaxHeight,
+      bsMidHeight,
+      errorLoadingData,
+      isLoading,
+    } = this.state;
     let totalLaundry = 0;
     return (
       <View
@@ -504,7 +539,7 @@ class KatalogScreen extends React.PureComponent {
           <FlatContainer
             onRefresh={() => this.loadingData()}
             style={{marginBottom: 50}}>
-            {this.state.isLoading ? (
+            {isLoading ? (
               this._renderShimmerList(7)
             ) : listData.length ? (
               listData.map((list, i) => {
@@ -597,8 +632,9 @@ class KatalogScreen extends React.PureComponent {
                   paddingHorizontal: 35,
                 }}>
                 <Text style={{textAlign: 'center', color: '#b9b9b9'}}>
-                  Sepertinya ada masalah dengan jaringan anda, Silahkan periksa
-                  koneksi data anda.
+                  {errorLoadingData
+                    ? 'Sepertinya ada masalah jaringan, coba periksa jaringan atau paket data kamu'
+                    : 'Oops, Belum ada katalog barang yang bisa laundry. Sabar yaa tunggu katalog yang baru mungkin sebentar lagi selesai'}
                 </Text>
               </View>
             )}

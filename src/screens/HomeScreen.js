@@ -16,13 +16,15 @@ import {
 import User from '../store/User';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {theme} from '../core/theme';
+import RestApi from '../router/Api';
+import Path from '../router/Path';
 
 const {width: screenWidth} = Dimensions.get('window');
 
 const style = StyleSheet.create({
   carousel_item: {
     width: screenWidth - 50,
-    height: 180,
+    height: 200,
   },
   carousel_image_container: {
     flex: 1,
@@ -38,52 +40,57 @@ const style = StyleSheet.create({
 
 class HomeScreen extends React.PureComponent {
   input = null;
-  state = {entries: null};
-  ENTRIES1 = [
-    {
-      title: 'Dummy Discount Banner',
-      url:
-        'https://cdn.dribbble.com/users/1998175/screenshots/11803852/media/3222415b6ceb672e04c57b4e86650594.jpg',
-    },
-    {
-      title: 'Dummy Discount Banner',
-      url:
-        'https://cdn.dribbble.com/users/1998175/screenshots/11803852/media/3222415b6ceb672e04c57b4e86650594.jpg',
-    },
-    {
-      title: 'Dummy Discount Banner',
-      url:
-        'https://cdn.dribbble.com/users/1998175/screenshots/11803852/media/3222415b6ceb672e04c57b4e86650594.jpg',
-    },
-    {
-      title: 'Dummy Discount Banner',
-      url:
-        'https://cdn.dribbble.com/users/1998175/screenshots/11803852/media/3222415b6ceb672e04c57b4e86650594.jpg',
-    },
-    {
-      title: 'Dummy Discount Banner',
-      url:
-        'https://cdn.dribbble.com/users/1998175/screenshots/11803852/media/3222415b6ceb672e04c57b4e86650594.jpg',
-    },
-  ];
+  state = {banners: null, errorLoadingData: false};
 
   constructor(props) {
     super(props);
     this.initData();
   }
+
   async initData() {
     const {getName} = new User();
     this.setState({name: await getName()});
   }
+
   componentDidMount(): void {
-    this.setState({entries: this.ENTRIES1});
+    this.loadBanner();
   }
 
+  loadBanner() {
+    RestApi.get('/banner/all-active')
+      .then(res => {
+        console.log('response banner', res.data.value);
+        this.setState({
+          banners: res.data.value,
+          isLoading: false,
+          errorLoadingData: false,
+        });
+      })
+      .catch(err => {
+        this.setState({
+          banners: [
+            {
+              title:
+                'Tidak dapat memuat gambar, sepertinya Ada masalah. silahkan periksa jaringan data anda',
+            },
+          ],
+          isLoading: false,
+          errorLoadingData: true,
+        });
+        console.log('error banner', err);
+      });
+  }
   renderItem = ({item, index}, parallaxProps) => {
     return (
       <View style={style.carousel_item}>
         <ParallaxImage
-          source={{uri: item.url}}
+          source={
+            this.state.errorLoadingData
+              ? require('../assets/image404.svg')
+              : {
+                  uri: `${Path.BannerImage}/${item.image}`,
+                }
+          }
           containerStyle={style.carousel_image_container}
           style={style.carousel_image}
           parallaxFactor={0}
@@ -120,11 +127,10 @@ class HomeScreen extends React.PureComponent {
     },
     {
       icon: {name: 'progress-clock', color: '#4aa100'},
-      title: 'Sedang DiLaundry',
-      subtitle:
-        'lihat informasi tentang pesanan kamu yang sedang dikerjakan laundry',
+      title: 'Sedang Diproses',
+      subtitle: 'lihat informasi tentang pesanan kamu yang sedang diproses',
       onPress: () => {
-        this.props.navigation.navigate('HistoryScreen');
+        this.props.navigation.navigate('ProgressScreen');
       },
     },
     {
@@ -159,7 +165,7 @@ class HomeScreen extends React.PureComponent {
             justifyContent: 'space-between',
             marginTop: 20,
             marginLeft: 25,
-            marginBottom: 25,
+            marginBottom: 30,
           }}>
           <View>
             <View style={{flexDirection: 'row'}}>
@@ -194,12 +200,12 @@ class HomeScreen extends React.PureComponent {
           </TouchableHighlight>
         </View>
 
-        <View style={{height: 180, marginBottom: 25}}>
+        <View style={{height: 200}}>
           <Carousel
             sliderWidth={screenWidth}
-            sliderHeight={180}
+            sliderHeight={200}
             itemWidth={screenWidth - 50}
-            data={this.state.entries}
+            data={this.state.banners}
             renderItem={this.renderItem}
             hasParallaxImages={true}
             loop={true}
@@ -212,7 +218,7 @@ class HomeScreen extends React.PureComponent {
             backgroundColor: '#fff',
             position: 'absolute',
             bottom: 0,
-            height: '50%',
+            height: '47%',
             paddingTop: 15,
             width: '100%',
             borderTopRightRadius: 35,
