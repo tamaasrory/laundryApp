@@ -4,7 +4,6 @@ import {Button, Text} from 'react-native-elements';
 import styles from '../components/Styles';
 import {StatusBar, View} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {theme} from '../core/theme';
 
 class SyaratMemberScreen extends React.PureComponent {
   constructor(props) {
@@ -14,7 +13,7 @@ class SyaratMemberScreen extends React.PureComponent {
   render() {
     return (
       <View style={{backgroundColor: '#fff', flexGrow: 1}}>
-        <StatusBar backgroundColor={'#ed9100'} />
+        <StatusBar backgroundColor={'#ed9100'} barStyle={'light-content'} />
         <View
           style={{
             flexDirection: 'row',

@@ -13,7 +13,7 @@ class KeuntunganScreen extends React.PureComponent {
   render() {
     return (
       <View style={{backgroundColor: '#fff', flexGrow: 1}}>
-        <StatusBar backgroundColor={'#009228'} />
+        <StatusBar backgroundColor={'#009228'} barStyle={'light-content'} />
         <View
           style={{
             flexDirection: 'row',
