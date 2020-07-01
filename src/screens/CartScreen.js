@@ -202,6 +202,7 @@ class CartScreen extends React.PureComponent {
         name: kategori.name,
         harga: kategori.harga,
         diskonStatus: kategori.diskonStatus,
+        waktuPengerjaan: kategori.waktuPengerjaan,
         diskon: kategori.diskon,
       };
 
