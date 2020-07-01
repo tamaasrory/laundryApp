@@ -20,17 +20,17 @@ import RestApi from '../router/Api';
 import Path from '../router/Path';
 
 const {width: screenWidth} = Dimensions.get('window');
-
+const itemWidth = screenWidth;
 const style = StyleSheet.create({
   carousel_item: {
-    width: screenWidth - 50,
-    height: 200,
+    width: itemWidth,
+    height: '100%',
   },
   carousel_image_container: {
     flex: 1,
     marginBottom: Platform.select({ios: 0, android: 1}), // Prevent a random Android rendering issue
     backgroundColor: 'white',
-    borderRadius: 8,
+    // borderRadius: 8,
   },
   carousel_image: {
     ...StyleSheet.absoluteFillObject,
@@ -96,21 +96,6 @@ class HomeScreen extends React.PureComponent {
           parallaxFactor={0}
           {...parallaxProps}
         />
-        <View
-          style={{
-            bottom: 0,
-            position: 'absolute',
-            width: '100%',
-            borderBottomLeftRadius: 8,
-            borderBottomRightRadius: 8,
-            backgroundColor: '#007aea',
-            paddingVertical: 10,
-            paddingHorizontal: 15,
-          }}>
-          <Text style={{color: '#fff'}} numberOfLines={2}>
-            {item.title}
-          </Text>
-        </View>
       </View>
     );
   };
@@ -147,25 +132,27 @@ class HomeScreen extends React.PureComponent {
     console.info('#render : ', this.constructor.name);
     return (
       <FlatContainer>
-        <View
-          style={{
-            backgroundColor: theme.colors.primary,
-            position: 'absolute',
-            height: '100%',
-            width: '100%',
-          }}
-        />
-        <StatusBar
-          backgroundColor={theme.colors.tabHomeStatusBar}
-          barStyle={'light-content'}
-        />
+        <View style={{height: '60%', position: 'absolute'}}>
+          <Carousel
+            sliderWidth={screenWidth}
+            itemWidth={itemWidth}
+            data={this.state.banners}
+            renderItem={this.renderItem}
+            hasParallaxImages={true}
+            loop={true}
+            autoplay={true}
+            autoplayInterval={3000}
+          />
+        </View>
+        <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            marginTop: 20,
-            marginLeft: 25,
-            marginBottom: 30,
+            backgroundColor: 'rgba(0,0,0,0.34)',
+            paddingTop: 20,
+            paddingLeft: 25,
+            paddingBottom: 20,
           }}>
           <View>
             <View style={{flexDirection: 'row'}}>
@@ -194,31 +181,17 @@ class HomeScreen extends React.PureComponent {
                 borderRadius: 50,
               }}
               name="account"
-              color={theme.colors.primary}
+              color={theme.colors.accent}
               size={23}
             />
           </TouchableHighlight>
-        </View>
-
-        <View style={{height: 200}}>
-          <Carousel
-            sliderWidth={screenWidth}
-            sliderHeight={200}
-            itemWidth={screenWidth - 50}
-            data={this.state.banners}
-            renderItem={this.renderItem}
-            hasParallaxImages={true}
-            loop={true}
-            autoplay={true}
-            autoplayInterval={3000}
-          />
         </View>
         <View
           style={{
             backgroundColor: '#fff',
             position: 'absolute',
             bottom: 0,
-            height: '47%',
+            height: '50%',
             paddingTop: 15,
             width: '100%',
             borderTopRightRadius: 35,
