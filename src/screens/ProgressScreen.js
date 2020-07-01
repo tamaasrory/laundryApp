@@ -139,6 +139,7 @@ class ProgressScreen extends React.PureComponent {
               'Menunggu',
               'Sedang Dilaundry',
               'Laundry Selesai',
+              'Dibatalkan',
             ].includes(status.label) ? (
               <Button
                 type={'outline'}
