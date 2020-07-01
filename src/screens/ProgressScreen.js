@@ -34,7 +34,9 @@ class ProgressScreen extends React.PureComponent {
     bsMaxHeight: 0,
     bsMidHeight: 0,
     alertVisible: false,
-    pesanBatal: 'Batalkan Order Laundry Sekarang ?',
+    pesanDialog: 'Batalkan Order Laundry Sekarang ?',
+    possitiveBtn: () => {},
+    negativeBtn: () => {},
     batalID: null,
     openBs: false,
 
@@ -49,7 +51,7 @@ class ProgressScreen extends React.PureComponent {
 
   loadingData() {
     this.setState({isLoading: true, errorLoadingData: false});
-    RestApi.get('/order/history')
+    RestApi.get('/order/onprogress')
       .then(res => {
         this.setState({
           listData: res.data.value,
@@ -70,6 +72,7 @@ class ProgressScreen extends React.PureComponent {
     detail.barang.map(d => {
       let selectedKat = d.selectedKategori;
       let status = d.status[d.status.length - 1];
+
       kategori.push({
         key: d.idk,
         title: (
@@ -78,25 +81,21 @@ class ProgressScreen extends React.PureComponent {
           </Text>
         ),
         subtitle: (
-          <Text style={[styles.titleList, {color: theme.colors.secondary}]}>
-            {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
-          </Text>
-        ),
-        rightElement: (
-          <Button
-            type={'outline'}
-            title={status.label}
-            titleStyle={{
-              fontSize: 12,
-              color: this.getStatusColor(status.label),
-            }}
-            buttonStyle={{
-              paddingVertical: 5,
-              borderRadius: 15,
-              borderColor: this.getStatusColor(status.label),
-              width: 75,
-            }}
-          />
+          <View>
+            <Text style={[styles.titleList, {color: theme.colors.secondary}]}>
+              {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
+            </Text>
+            <Text
+              style={[
+                styles.titleList,
+                {
+                  color: this.getStatusColor(status.label),
+                  marginTop: 2,
+                },
+              ]}>
+              {status.label}
+            </Text>
+          </View>
         ),
         rightAvatar: (
           <View style={{flexDirection: 'column'}}>
@@ -132,20 +131,71 @@ class ProgressScreen extends React.PureComponent {
                 detail.isMember,
               )}
             </View>
-            <View
-              style={{
-                flexDirection: 'row',
-              }}>
-              <Text style={styles.subtitleList}>
-                {selectedKat.harga.toString().formatNumber()} (x{d.jumlah})
-              </Text>
-            </View>
+            <Text style={[styles.subtitleList, {textAlign: 'right'}]}>
+              {selectedKat.harga.toString().formatNumber()} (x{d.jumlah})
+            </Text>
+            {![
+              'Telah Diterima',
+              'Menunggu',
+              'Sedang Dilaundry',
+              'Laundry Selesai',
+            ].includes(status.label) ? (
+              <Button
+                type={'outline'}
+                title={'Telah Diterima'}
+                titleStyle={{
+                  fontSize: 12,
+                  color: this.getStatusColorByKey(7),
+                }}
+                onPress={() => {
+                  this.setState({
+                    pesanDialog:
+                      'Apakah Benar anda telah menerima barang yang anda laundry?',
+                    possitiveBtn: () => this.postTerimaLaundry(d.idk),
+                    alertVisible: true,
+                  });
+                }}
+                buttonStyle={{
+                  paddingVertical: 5,
+                  marginTop: 2,
+                  borderRadius: 15,
+                  borderColor: this.getStatusColorByKey(7),
+                }}
+              />
+            ) : null}
           </View>
         ),
       });
     });
 
     return kategori;
+  }
+
+  postTerimaLaundry(idk) {
+    const oldPesan = this.state.pesanDialog;
+    RestApi.post('/order/terima', {
+      id: this.state.selectedTransaksi.ido,
+      idk: idk,
+    })
+      .then(res => {
+        console.log(res.data.value);
+        this.bs.current.snapTo(2);
+        this.loadingData();
+        this.setState({
+          alertVisible: false,
+          pesanDialog: oldPesan,
+          openBs: false,
+        });
+      })
+      .catch(error => {
+        console.log(error);
+        this.bs.current.snapTo(2);
+        this.setState({
+          alertVisible: false,
+          pesanDialog: oldPesan,
+          openBs: false,
+        });
+      });
   }
 
   showBottomSheet(indexRow, total) {
@@ -295,7 +345,14 @@ class ProgressScreen extends React.PureComponent {
             buttonStyle={{borderColor: theme.colors.accent}}
             titleStyle={{color: theme.colors.accent}}
             onPress={() => {
-              this.setState({alertVisible: true, batalID: ido});
+              this.setState({
+                alertVisible: true,
+                batalID: ido,
+                possitiveBtn: () => {
+                  this.btnBatalkan();
+                  this.setState({alertVisible: false});
+                },
+              });
             }}
           />
         </View>
@@ -304,15 +361,18 @@ class ProgressScreen extends React.PureComponent {
   }
 
   btnBatalkan() {
-    const oldPesan = this.state.pesanBatal;
-    this.setState({pesanBatal: 'Sedang Membatalkan Orderan Anda'});
+    const oldPesan = this.state.pesanDialog;
+    this.setState({
+      pesanDialog: 'Sedang Membatalkan Orderan Anda',
+    });
     RestApi.post('/order/batalkan', {id: this.state.batalID})
       .then(response => {
-        this.setState({batalID: null, pesanBatal: oldPesan});
+        this.setState({batalID: null, pesanDialog: oldPesan, openBs: false});
         this.bs.current.snapTo(2);
         this.loadingData();
       })
       .catch(e => {
+        this.setState({batalID: null, openBs: false});
         console.log('errorRespon', e);
       });
   }
@@ -380,6 +440,7 @@ class ProgressScreen extends React.PureComponent {
     ];
     return status[key - 1];
   }
+
   _renderShimmerList(numberRow) {
     let shimmerRows = [];
     for (let index = 0; index < numberRow; index++) {
@@ -436,7 +497,10 @@ class ProgressScreen extends React.PureComponent {
           this.screenHeight = event.nativeEvent.layout.height;
         }}
         style={{flexGrow: 1}}>
-        <StatusBar backgroundColor={theme.colors.tabProgressStatusBar} />
+        <StatusBar
+          backgroundColor={theme.colors.tabProgressStatusBar}
+          barStyle={'light-content'}
+        />
         <View
           style={{
             flexDirection: 'row',
@@ -563,13 +627,11 @@ class ProgressScreen extends React.PureComponent {
           }}
           btnRight={{
             title: 'Ya',
-            onPress: () => {
-              this.btnBatalkan();
-              this.setState({alertVisible: false});
-            },
+            onPress: this.state.possitiveBtn,
           }}>
-          <Text>{this.state.pesanBatal}</Text>
+          <Text>{this.state.pesanDialog}</Text>
         </AlertDialog>
+
         <BottomSheet
           ref={this.bs}
           snapPoints={[bsMaxHeight, bsMidHeight, 0]}

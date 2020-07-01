@@ -11,7 +11,6 @@ import {theme} from '../core/theme';
 import BottomSheet from 'reanimated-bottom-sheet';
 import {inject, observer} from 'mobx-react';
 import ListOptions from '../components/ListOptions';
-import AlertDialog from '../components/AlertDialog';
 import moment from '../components/DateFormater';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
@@ -410,7 +409,7 @@ class HistoryScreen extends React.PureComponent {
           this.screenHeight = event.nativeEvent.layout.height;
         }}
         style={{flexGrow: 1}}>
-        <StatusBar backgroundColor={theme.colors.tabHistoryStatusBar} />
+        <StatusBar backgroundColor={theme.colors.tabHistoryStatusBar} barStyle={'light-content'} />
         <View
           style={{
             flexDirection: 'row',
