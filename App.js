@@ -27,6 +27,13 @@ import HistoryScreen from './src/screens/HistoryScreen';
 import AccountScreen from './src/screens/AccountScreen';
 import ProgressScreen from './src/screens/ProgressScreen';
 import SplashScreen from './src/screens/SplashScreen';
+import {
+  BackHandler,
+  Animated,
+  Dimensions,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 
 // eslint-disable-next-line no-extend-native
 String.prototype.formatNumber =
@@ -63,89 +70,169 @@ String.prototype.formatUnicorn =
   };
 
 const Stack = createStackNavigator();
+let {width, height} = Dimensions.get('window');
 
-const App: () => React$Node = () => {
-  console.info('#render : ', 'App.js');
-  return (
-    <PaperProvider theme={theme}>
-      <Provider store={LocationStore} orderStore={OrderStore}>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="SplashScreen">
-            <Stack.Screen
-              name="SplashScreen"
-              component={SplashScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="LoginScreen"
-              component={LoginScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="RegisterScreen"
-              component={RegisterScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="ForgotPasswordScreen"
-              component={ForgotPasswordScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="MainScreen"
-              component={HomeScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="OrderScreen"
-              component={OrderScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="HistoryScreen"
-              component={HistoryScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="ProgressScreen"
-              component={ProgressScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="CartScreen"
-              component={CartScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="MapsScreen"
-              component={MapsScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="KatalogScreen"
-              component={KatalogScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="AccountScreen"
-              component={AccountScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="SyaratMemberScreen"
-              component={SyaratMemberScreen}
-              options={{headerShown: false}}
-            />
-            <Stack.Screen
-              name="KeuntunganScreen"
-              component={KeuntunganScreen}
-              options={{headerShown: false}}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </Provider>
-    </PaperProvider>
-  );
+class App extends React.PureComponent {
+  state = {
+    backClickCount: 0,
+  };
+
+  constructor(props) {
+    super(props);
+
+    this.springValue = new Animated.Value(2000);
+  }
+  componentWillMount() {
+    BackHandler.addEventListener(
+      'hardwareBackPress',
+      this.handleBackButton.bind(this),
+    );
+  }
+
+  componentWillUnmount() {
+    BackHandler.removeEventListener(
+      'hardwareBackPress',
+      this.handleBackButton.bind(this),
+    );
+  }
+
+  _spring() {
+    this.setState({backClickCount: 1}, () => {
+      Animated.sequence([
+        Animated.spring(this.springValue, {
+          toValue: 0,
+          friction: 5,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(this.springValue, {
+          toValue: 90,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        this.setState({backClickCount: 0});
+      });
+    });
+  }
+
+  handleBackButton = () => {
+    this.state.backClickCount === 1 ? BackHandler.exitApp() : this._spring();
+
+    return true;
+  };
+  render() {
+    console.info('#render : ', 'App.js');
+    return (
+      <PaperProvider theme={theme}>
+        <Provider store={LocationStore} orderStore={OrderStore}>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="SplashScreen">
+              <Stack.Screen
+                name="SplashScreen"
+                component={SplashScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="LoginScreen"
+                component={LoginScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="RegisterScreen"
+                component={RegisterScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="ForgotPasswordScreen"
+                component={ForgotPasswordScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="MainScreen"
+                component={HomeScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="OrderScreen"
+                component={OrderScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="HistoryScreen"
+                component={HistoryScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="ProgressScreen"
+                component={ProgressScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="CartScreen"
+                component={CartScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="MapsScreen"
+                component={MapsScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="KatalogScreen"
+                component={KatalogScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="AccountScreen"
+                component={AccountScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="SyaratMemberScreen"
+                component={SyaratMemberScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="KeuntunganScreen"
+                component={KeuntunganScreen}
+                options={{headerShown: false}}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+          <Animated.View
+            style={[
+              styles.animatedView,
+              {transform: [{translateY: this.springValue}]},
+            ]}>
+            <Text style={styles.exitTitleText}>
+              Klik tombol kembali dua kali untuk keluar dari aplikasi
+            </Text>
+          </Animated.View>
+        </Provider>
+      </PaperProvider>
+    );
+  }
+}
+const styles = {
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  animatedView: {
+    marginHorizontal: 20,
+    backgroundColor: 'rgba(0,0,0,0.50)',
+    position: 'absolute',
+    borderRadius: 50,
+    bottom: 20,
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  exitTitleText: {
+    textAlign: 'center',
+    color: '#ffffff',
+  },
 };
-
 export default memo(App);
