@@ -3,7 +3,7 @@
  */
 import React, {memo} from 'react';
 import FlatContainer from '../components/FlatContainer';
-import {Button, Text} from 'react-native-elements';
+import {Button, ListItem, Text} from 'react-native-elements';
 import {theme} from '../core/theme';
 import ListViewItem from '../components/ListViewItem';
 import styles from '../components/Styles';
@@ -18,6 +18,10 @@ class AccountScreen extends React.PureComponent {
   state = {
     alertVisible: false,
     listData: [],
+    onUpgradeProgress: false,
+    member_status: false,
+    account_name: null,
+    no_hp: null,
   };
 
   listInfo = [
@@ -46,51 +50,23 @@ class AccountScreen extends React.PureComponent {
 
   async initData() {
     const {getName, getNoHp, isMember} = new User();
+    let member_status = (await isMember()) === '1';
     this.setState({
-      listData: [
-        {
-          icon: {name: 'account-circle'},
-          title: <Text style={{fontWeight: 'bold'}}>Nama</Text>,
-          subtitle: await getName(),
-        },
-        {
-          icon: {name: 'phone'},
-          title: <Text style={{fontWeight: 'bold'}}>Nomor Ponsel</Text>,
-          subtitle: await getNoHp(),
-        },
-        {
-          icon: {name: 'wallet-membership'},
-          title: <Text style={{fontWeight: 'bold'}}>Status</Text>,
-          subtitle: (await isMember()) === '1' ? 'Member' : 'Belum Jadi Member',
-        },
-      ],
+      account_name: await getName(),
+      no_hp: await getNoHp(),
+      member_status: member_status,
     });
   }
+
   loadingData() {
     RestApi.get('/user/detail')
       .then(res => {
         const {value} = res.data;
+        let member_status = value.detail.isMember.toString() === '1';
         this.setState({
-          listData: [
-            {
-              icon: {name: 'account-circle'},
-              title: 'Nama',
-              subtitle: value.name,
-            },
-            {
-              icon: {name: 'phone'},
-              title: 'Nomor Ponsel',
-              subtitle: value.no_hp,
-            },
-            {
-              icon: {name: 'wallet-membership'},
-              title: 'Status',
-              subtitle:
-                value.detail.isMember.toString() === '1'
-                  ? 'Member'
-                  : 'Belum Jadi Member',
-            },
-          ],
+          account_name: value.name,
+          no_hp: value.no_hp,
+          member_status: member_status,
         });
 
         SInfo.setItem('name', value.name, {});
@@ -102,10 +78,19 @@ class AccountScreen extends React.PureComponent {
       });
   }
 
+  postUpgradeToMember = () => {
+    this.setState({onUpgradeProgress: true});
+    console.log(this.state.onUpgradeProgress);
+  };
+
+  isOnProgressRequest() {
+    return this.state.onUpgradeProgress;
+  }
   render() {
     console.info('#render : ', this.constructor.name);
+    const {member_status, account_name, no_hp} = this.state;
     return (
-      <View style={{flexGrow: 1}}>
+      <View style={{flexGrow: 1, backgroundColor: '#fff'}}>
         <StatusBar
           backgroundColor={theme.colors.tabAccountStatusBar}
           barStyle={'dark-content'}
@@ -156,52 +141,87 @@ class AccountScreen extends React.PureComponent {
           <FlatContainer
             style={{padding: 0}}
             onRefresh={() => this.loadingData()}>
-            <ListViewItem data={this.state.listData} />
-            <ListViewItem data={this.listInfo} />
-            {/*<AlertDialog
-              dismissable={true}
-              onDismiss={() => {
-                this.setState({alertVisible: false});
-              }}
-              visible={this.state.alertVisible}
-              title="Pesan"
-              btnLeft={{
-                title: 'Tidak',
-                onPress: () => {
-                  this.setState({alertVisible: false});
-                },
-              }}
-              btnRight={{
-                title: 'Ya',
-                onPress: () => {
-                  this.setState({alertVisible: false});
-                  SInfo.deleteItem('token', {});
-                  SInfo.deleteItem('name', {});
-                  SInfo.deleteItem('no_hp', {});
-                  SInfo.deleteItem('isMember', {});
-                  this.props.navigation.navigate('LoginScreen');
-                },
-              }}>
-              <Text>Anda yakin akan keluar ?</Text>
-            </AlertDialog>*/}
-            <Button
-              type="outline"
-              buttonStyle={styles.btnLogout}
-              titleStyle={{color: theme.colors.accent}}
-              onPress={() => {
-                // this.setState({alertVisible: false});
-                SInfo.deleteItem('token', {});
-                SInfo.deleteItem('name', {});
-                SInfo.deleteItem('no_hp', {});
-                SInfo.deleteItem('isMember', {});
-                this.props.navigation.reset({
-                  index: 0,
-                  routes: [{name: 'LoginScreen'}],
-                });
-              }}
-              title="KELUAR"
+            <ListItem
+              underlayColor={'rgba(202,202,202,0.58)'}
+              leftIcon={
+                <MaterialCommunityIcons
+                  name={'account-circle'}
+                  size={24}
+                  color={theme.colors.primary}
+                />
+              }
+              title={<Text style={{fontWeight: 'bold'}}>Nama</Text>}
+              subtitle={account_name}
+              titleStyle={styles.titleList}
+              subtitleStyle={styles.subtitleList}
+              bottomDivider
             />
+            <ListItem
+              underlayColor={'rgba(202,202,202,0.58)'}
+              leftIcon={
+                <MaterialCommunityIcons
+                  name={'phone'}
+                  size={24}
+                  color={theme.colors.primary}
+                />
+              }
+              title={<Text style={{fontWeight: 'bold'}}>Nomor Ponsel</Text>}
+              subtitle={no_hp}
+              titleStyle={styles.titleList}
+              subtitleStyle={styles.subtitleList}
+              bottomDivider
+            />
+            <ListItem
+              underlayColor={'rgba(202,202,202,0.58)'}
+              leftIcon={
+                <MaterialCommunityIcons
+                  name={'wallet-membership'}
+                  size={24}
+                  color={theme.colors.primary}
+                />
+              }
+              title={<Text style={{fontWeight: 'bold'}}>Status</Text>}
+              subtitle={member_status === '1' ? 'Member' : 'Bukan Member'}
+              titleStyle={styles.titleList}
+              subtitleStyle={styles.subtitleList}
+              rightElement={
+                member_status ? null : (
+                  <Button
+                    type={'outline'}
+                    title={'Upgrade Jadi Member'}
+                    loading={this.isOnProgressRequest()}
+                    loadingProps={{color: theme.colors.green}}
+                    titleStyle={{color: theme.colors.green, fontSize: 11}}
+                    onPress={this.postUpgradeToMember}
+                    buttonStyle={{
+                      borderRadius: 10,
+                      borderColor: theme.colors.green,
+                    }}
+                  />
+                )
+              }
+              bottomDivider
+            />
+            <ListViewItem data={this.listInfo} />
           </FlatContainer>
+          <Button
+            type="outline"
+            buttonStyle={styles.btnLogout}
+            titleStyle={{color: theme.colors.accent}}
+            containerStyle={{marginBottom: 20}}
+            onPress={() => {
+              // this.setState({alertVisible: false});
+              SInfo.deleteItem('token', {});
+              SInfo.deleteItem('name', {});
+              SInfo.deleteItem('no_hp', {});
+              SInfo.deleteItem('isMember', {});
+              this.props.navigation.reset({
+                index: 0,
+                routes: [{name: 'LoginScreen'}],
+              });
+            }}
+            title="KELUAR"
+          />
         </View>
       </View>
     );
