@@ -307,7 +307,7 @@ class KatalogScreen extends React.PureComponent {
       {this.state.selectedBarang && (
         <View
           style={{
-            paddingHorizontal: 5,
+            paddingHorizontal: 0,
             paddingBottom: 25,
             backgroundColor: '#fff',
           }}>
@@ -328,8 +328,8 @@ class KatalogScreen extends React.PureComponent {
             isSelected={val => this.state.selectedKategori?.name === val.name}
             containerStyle={val => ({
               paddingVertical: 10,
-              borderRadius: 15,
-              backgroundColor: val ? 'rgba(70,153,0,0.15)' : '#fff',
+              borderRadius: 0,
+              backgroundColor: val ? 'rgba(31,191,0,0.15)' : '#fff',
             })}
           />
           <Divider style={styles.divider} />
@@ -489,7 +489,7 @@ class KatalogScreen extends React.PureComponent {
         onLayout={event => {
           this.screenHeight = event.nativeEvent.layout.height;
         }}
-        style={{flexGrow: 1}}>
+        style={{flexGrow: 1, backgroundColor: '#fff'}}>
         <StatusBar
           backgroundColor={theme.colors.tabOrderStatusBar}
           barStyle={'dark-content'}
@@ -535,6 +535,7 @@ class KatalogScreen extends React.PureComponent {
           style={{
             flex: 1,
             height: 100,
+            marginHorizontal: 10,
           }}>
           <FlatContainer
             onRefresh={() => this.loadingData()}
@@ -580,7 +581,7 @@ class KatalogScreen extends React.PureComponent {
                           elevation: 3,
                         }}>
                         <Image
-                          style={{width: 55, height: 55, borderRadius: 12}}
+                          style={{width: 60, height: 60, borderRadius: 12}}
                           source={{
                             uri: `${Path.priceListThumbImage}/${
                               list.detail.photo

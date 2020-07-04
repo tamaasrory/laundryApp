@@ -237,7 +237,7 @@ class CartScreen extends React.PureComponent {
       {this.state.selectedBarang ? (
         <View
           style={{
-            paddingHorizontal: 5,
+            paddingHorizontal: 0,
             paddingBottom: 25,
             backgroundColor: '#fff',
           }}>
@@ -258,8 +258,8 @@ class CartScreen extends React.PureComponent {
             isSelected={val => this.state.selectedKategori?.name === val.name}
             containerStyle={val => ({
               paddingVertical: 10,
-              borderRadius: 15,
-              backgroundColor: val ? 'rgba(70,153,0,0.15)' : '#fff',
+              borderRadius: 0,
+              backgroundColor: val ? 'rgba(31,191,0,0.15)' : '#fff',
             })}
           />
           <Divider style={styles.divider} />
