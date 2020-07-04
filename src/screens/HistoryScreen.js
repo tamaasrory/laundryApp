@@ -76,25 +76,21 @@ class HistoryScreen extends React.PureComponent {
           </Text>
         ),
         subtitle: (
-          <Text style={[styles.titleList, {color: theme.colors.secondary}]}>
-            {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
-          </Text>
-        ),
-        rightElement: (
-          <Button
-            type={'outline'}
-            title={status.label}
-            titleStyle={{
-              fontSize: 12,
-              color: this.getStatusColor(status.label),
-            }}
-            buttonStyle={{
-              paddingVertical: 5,
-              borderRadius: 15,
-              borderColor: this.getStatusColor(status.label),
-              width: 75,
-            }}
-          />
+          <View>
+            <Text style={[styles.titleList, {color: theme.colors.secondary}]}>
+              {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
+            </Text>
+            <Text
+              style={[
+                styles.titleList,
+                {
+                  color: this.getStatusColor(status.label),
+                  marginTop: 2,
+                },
+              ]}>
+              {status.label}
+            </Text>
+          </View>
         ),
         rightAvatar: (
           <View style={{flexDirection: 'column'}}>
@@ -409,7 +405,10 @@ class HistoryScreen extends React.PureComponent {
           this.screenHeight = event.nativeEvent.layout.height;
         }}
         style={{flexGrow: 1}}>
-        <StatusBar backgroundColor={theme.colors.tabHistoryStatusBar} barStyle={'light-content'} />
+        <StatusBar
+          backgroundColor={theme.colors.tabHistoryStatusBar}
+          barStyle={'light-content'}
+        />
         <View
           style={{
             flexDirection: 'row',
@@ -525,6 +524,7 @@ class HistoryScreen extends React.PureComponent {
           renderContent={this.renderContent}
           renderHeader={this.renderHeader}
           initialSnap={2}
+          enabledBottomInitialAnimation={true}
           onCloseEnd={() => {
             if (this.state.openBs) {
               this.setState({openBs: false});
