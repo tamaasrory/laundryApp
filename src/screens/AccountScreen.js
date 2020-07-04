@@ -7,11 +7,10 @@ import {Button, ListItem, Text} from 'react-native-elements';
 import {theme} from '../core/theme';
 import ListViewItem from '../components/ListViewItem';
 import styles from '../components/Styles';
-// import AlertDialog from '../components/AlertDialog';
 import RestApi from '../router/Api';
 import SInfo from 'react-native-sensitive-info';
 import User from '../store/User';
-import {StatusBar, View} from 'react-native';
+import {ActivityIndicator, StatusBar, View} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 class AccountScreen extends React.PureComponent {
@@ -22,6 +21,7 @@ class AccountScreen extends React.PureComponent {
     member_status: false,
     account_name: null,
     no_hp: null,
+    btnUpgradeTitle: 'Upgrade Jadi Member',
   };
 
   listInfo = [
@@ -79,13 +79,25 @@ class AccountScreen extends React.PureComponent {
   }
 
   postUpgradeToMember = () => {
-    this.setState({onUpgradeProgress: true});
-    console.log(this.state.onUpgradeProgress);
+    this.setState({
+      onUpgradeProgress: true,
+      btnUpgradeTitle: 'Mengirim Permintaan',
+    });
+    RestApi.post('/upgrade-to-member')
+      .then(res => {
+        this.setState({
+          onUpgradeProgress: false,
+          btnUpgradeTitle: 'Menunggu Konfirmasi',
+        });
+      })
+      .catch(error => {
+        this.setState({
+          onUpgradeProgress: false,
+          btnUpgradeTitle: 'Upgrade Jadi Member',
+        });
+      });
   };
 
-  isOnProgressRequest() {
-    return this.state.onUpgradeProgress;
-  }
   render() {
     console.info('#render : ', this.constructor.name);
     const {member_status, account_name, no_hp} = this.state;
@@ -188,9 +200,16 @@ class AccountScreen extends React.PureComponent {
                 member_status ? null : (
                   <Button
                     type={'outline'}
-                    title={'Upgrade Jadi Member'}
-                    loading={this.isOnProgressRequest()}
-                    loadingProps={{color: theme.colors.green}}
+                    title={this.state.btnUpgradeTitle}
+                    icon={
+                      this.state.onUpgradeProgress ? (
+                        <ActivityIndicator
+                          animating={true}
+                          color={theme.colors.green}
+                          style={{marginRight: 5}}
+                        />
+                      ) : null
+                    }
                     titleStyle={{color: theme.colors.green, fontSize: 11}}
                     onPress={this.postUpgradeToMember}
                     buttonStyle={{

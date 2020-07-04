@@ -284,6 +284,7 @@ class OrderScreen extends React.PureComponent {
                 paddingLeft: 5,
                 marginRight: 0,
                 marginTop: 5,
+                marginBottom: 20,
               }}>
               <Picker
                 mode={'dropdown'}
@@ -302,7 +303,7 @@ class OrderScreen extends React.PureComponent {
                 })}
               </Picker>
             </View>
-            <Divider style={[styles.divider, {marginVertical: 10}]} />
+
             <View style={{flexDirection: 'row'}}>
               <Text style={styles.textLabel}>Nomor Ponsel</Text>
               <Text style={styles.textSecondary}> ( Aktif )</Text>
@@ -312,6 +313,7 @@ class OrderScreen extends React.PureComponent {
                 flexDirection: 'row',
                 borderBottomColor: 'grey',
                 borderBottomWidth: 1,
+                marginBottom: 20,
               }}>
               <View style={{justifyContent: 'center'}}>
                 <MaterialCommunityIcons
@@ -336,10 +338,10 @@ class OrderScreen extends React.PureComponent {
               />
             </View>
 
-            <Divider style={[styles.divider, {marginVertical: 10}]} />
             <Text style={styles.textLabel}>Alamat</Text>
             <TouchableHighlight
               underlayColor={'transparent'}
+              style={{marginBottom: 20}}
               onPress={() => {
                 this.props.navigation.navigate('MapsScreen');
               }}>
@@ -365,7 +367,6 @@ class OrderScreen extends React.PureComponent {
                 }
               />
             </TouchableHighlight>
-            <Divider style={[styles.divider, {marginVertical: 10}]} />
             <Input
               label={'Catatan'}
               placeholder={
@@ -376,7 +377,7 @@ class OrderScreen extends React.PureComponent {
               multiline
               maxLength={160}
               clearButtonMode={'always'}
-              containerStyle={[styles.mp_lr_0, styles.mp_l_0]}
+              containerStyle={[styles.mp_lr_0, {marginBottom: 30}]}
               leftIconContainerStyle={styles.ml0_ph10}
               leftIcon={
                 <MaterialCommunityIcons
@@ -390,7 +391,7 @@ class OrderScreen extends React.PureComponent {
                 this.setState({catatan: text});
               }}
             />
-            <Divider style={[styles.divider, {marginVertical: 50}]} />
+
             {showJemput && (
               <RNDateTimePicker
                 timeZoneOffsetInMinutes={0}
@@ -405,22 +406,14 @@ class OrderScreen extends React.PureComponent {
                 }
               />
             )}
-          </FlatContainer>
-
-          <View
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              backgroundColor: '#fff',
-              width: '100%',
-              paddingVertical: 15,
-              paddingHorizontal: 25,
-            }}>
             <Button
               type={'outline'}
               title={'Kirim Laundry'}
               titleStyle={{fontSize: 17, color: '#1dbc60'}}
               buttonStyle={{width: '100%', borderColor: '#1dbc60'}}
+              containerStyle={{
+                marginBottom: 20,
+              }}
               icon={
                 <MaterialCommunityIcons
                   size={24}
@@ -431,7 +424,7 @@ class OrderScreen extends React.PureComponent {
               iconRight
               onPress={() => this.sendOrder()}
             />
-          </View>
+          </FlatContainer>
         </View>
         <AlertDialog
           visible={this.state.showProgressDialog}
