@@ -9,6 +9,8 @@ export const theme = {
     secondary: '#414757',
     error: '#f13a59',
     accent: '#f13a59',
+    green: '#4aa100',
+    grey: '#a1a1a1',
     tabHome: /*'#0086ff', */ '#0086ff',
     tabHomeStatusBar: /*'#007aea', */ '#0086ff',
     tabOrder: '#fff', // '#0086ff', // '#1a8945',

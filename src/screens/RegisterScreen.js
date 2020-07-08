@@ -45,6 +45,7 @@ const RegisterScreen = ({navigation}) => {
         password: password.value,
       })
         .then(response => {
+          console.log('loginRespon', response);
           setLoginProcess({value: false});
           navigation.navigate('LoginScreen');
         })

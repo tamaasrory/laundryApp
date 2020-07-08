@@ -4,7 +4,7 @@ import React, {memo} from 'react';
 import styles from './Styles';
 import {theme} from '../core/theme';
 
-const ListViewItem = ({data, ...props}) => {
+const ListViewItem = ({data, state, ...props}) => {
   return data.map((list, i) => (
     <ListItem
       key={i}
@@ -22,6 +22,7 @@ const ListViewItem = ({data, ...props}) => {
       subtitle={list.subtitle}
       titleStyle={styles.titleList}
       subtitleStyle={styles.subtitleList}
+      rightElement={list.rightElement ? list.rightElement(state) : null}
       onPress={list.onPress ? list.onPress : () => {}}
       bottomDivider
     />
