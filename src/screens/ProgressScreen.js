@@ -76,13 +76,21 @@ class ProgressScreen extends React.PureComponent {
       kategori.push({
         key: d.idk,
         title: (
-          <Text style={[styles.titleList, {color: theme.colors.primary}]}>
+          <Text
+            style={[
+              styles.titleList,
+              {color: theme.colors.secondary, fontSize: 13, fontWeight: 'bold'},
+            ]}>
             {d.name}
           </Text>
         ),
         subtitle: (
           <View>
-            <Text style={[styles.titleList, {color: theme.colors.secondary}]}>
+            <Text
+              style={[
+                styles.titleList,
+                {color: theme.colors.secondary, fontSize: 12},
+              ]}>
               {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
             </Text>
             <Text
@@ -91,10 +99,16 @@ class ProgressScreen extends React.PureComponent {
                 {
                   color: this.getStatusColor(status.label),
                   marginTop: 2,
+                  fontSize: 12,
                 },
               ]}>
               {status.label}
             </Text>
+            {selectedKat.waktuPengantaran ? (
+              <Text style={{fontSize: 11, color: theme.colors.backdrop}}>
+                Akan diantar {selectedKat.waktuPengantaran}
+              </Text>
+            ) : null}
           </View>
         ),
         rightAvatar: (
@@ -135,11 +149,11 @@ class ProgressScreen extends React.PureComponent {
               {selectedKat.harga.toString().formatNumber()} (x{d.jumlah})
             </Text>
             {![
-              'Telah Diterima',
               'Menunggu',
-              'Sedang Dilaundry',
-              'Laundry Selesai',
               'Dibatalkan',
+              'Sedang Dijemput',
+              'Sedang Dilaundry',
+              'Telah Diterima',
             ].includes(status.label) ? (
               <Button
                 type={'outline'}
@@ -285,7 +299,9 @@ class ProgressScreen extends React.PureComponent {
       detail,
       total,
       status,
+      pembayaran,
     } = this.state.selectedTransaksi;
+
     return (
       <View
         style={{
@@ -315,9 +331,48 @@ class ProgressScreen extends React.PureComponent {
         <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
         <View style={styles.rowsBetween}>
           <Text style={[styles.textLabel, {fontSize: 15}]}>Total</Text>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>Rp{total}</Text>
+          <Text style={[styles.textLabel, {fontSize: 15}]}>
+            Rp{total.toString().formatNumber()}
+          </Text>
         </View>
         <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+        <View style={styles.rowsBetween}>
+          <Text style={[styles.textLabel, {fontSize: 15}]}>Tunai</Text>
+          <Text style={[styles.textLabel, {fontSize: 15}]}>
+            Rp{pembayaran.toString().formatNumber()}
+          </Text>
+        </View>
+        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+        <View style={styles.rowsBetween}>
+          <Text style={[styles.textLabel, {fontSize: 15}]}>Belum Dibayar</Text>
+          <Text style={[styles.textLabel, {fontSize: 15}]}>
+            Rp
+            {(parseFloat(total) - parseFloat(pembayaran))
+              .toString()
+              .formatNumber()}
+          </Text>
+        </View>
+        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+        <View
+          style={{
+            flexDirection: 'row',
+            marginVertical: 10,
+            backgroundColor: 'rgba(0,183,255,0.38)',
+            borderRadius: 10,
+            paddingVertical: 7,
+            paddingHorizontal: 10,
+          }}>
+          <MaterialCommunityIcons
+            name={'information'}
+            size={24}
+            color={theme.colors.primary}
+            style={{alignSelf: 'center'}}
+          />
+          <Text style={{fontSize: 12, marginLeft: 5, marginRight: 15}}>
+            Waktu pengantaran yang tertera pada pembayaran di atas merupakan
+            estimasi tercepat
+          </Text>
+        </View>
         <View style={{marginVertical: 10}}>
           <Text style={styles.textLabel}>Waktu Jemput</Text>
           <Text style={styles.subtitleList}>
@@ -566,12 +621,13 @@ class ProgressScreen extends React.PureComponent {
                   );
                 });
 
+                let tmpTotalLaundry = totalLaundry;
                 totalLaundry = totalLaundry.toString().formatNumber();
                 return (
                   <ListItem
                     key={i}
                     underlayColor={'rgba(0,0,0,0.14)'}
-                    onPress={() => this.showBottomSheet(i, totalLaundry)}
+                    onPress={() => this.showBottomSheet(i, tmpTotalLaundry)}
                     title={null}
                     // titleStyle={[styles.titleList, {fontSize: 13, color: 'grey'}]}
                     subtitle={
