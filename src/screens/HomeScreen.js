@@ -96,6 +96,30 @@ class HomeScreen extends React.PureComponent {
           parallaxFactor={0}
           {...parallaxProps}
         />
+        <View
+          style={{
+            height: '40%',
+            bottom: 0,
+            position: 'absolute',
+            width: '100%',
+            //backgroundColor: 'rgba(0,0,0,0.4)',
+            paddingVertical: 10,
+            paddingHorizontal: 25,
+          }}>
+          <Text
+            style={{
+              color: '#fff',
+              fontWeight: 'bold',
+              marginBottom: 2,
+              fontSize: 15,
+            }}
+            numberOfLines={2}>
+            {item.title}
+          </Text>
+          <Text style={{color: '#fff', fontSize: 13}} numberOfLines={2}>
+            {item.description}
+          </Text>
+        </View>
       </View>
     );
   };
@@ -119,7 +143,7 @@ class HomeScreen extends React.PureComponent {
       },
     },
     {
-      icon: {name: 'history', color: theme.colors.backdrop},
+      icon: {name: 'history', color: '#5f5f5f'},
       title: 'Riwayat',
       subtitle: 'lihat informasi pesanan yang pernah kamu lakukan',
       onPress: () => {
@@ -131,7 +155,7 @@ class HomeScreen extends React.PureComponent {
   render() {
     console.info('#render : ', this.constructor.name);
     return (
-      <FlatContainer>
+      <FlatContainer onRefresh={() => this.loadBanner()}>
         <View style={{height: '60%', position: 'absolute'}}>
           <Carousel
             sliderWidth={screenWidth}
@@ -142,6 +166,7 @@ class HomeScreen extends React.PureComponent {
             loop={true}
             autoplay={true}
             autoplayInterval={3000}
+            inactiveSlideScale={1}
           />
         </View>
         <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
@@ -150,15 +175,16 @@ class HomeScreen extends React.PureComponent {
             flexDirection: 'row',
             justifyContent: 'space-between',
             backgroundColor: 'rgba(0,0,0,0.34)',
-            paddingTop: 20,
+            paddingTop: 10,
             paddingLeft: 25,
-            paddingBottom: 20,
+            paddingBottom: 10,
           }}>
           <View>
             <View style={{flexDirection: 'row'}}>
               <Text style={{fontSize: 19, color: '#fff'}}>Hi </Text>
               <Text style={{fontSize: 19, fontWeight: 'bold', color: '#fff'}}>
-                {this.state.name},
+                {this.state.name?.substring(0, 11)}
+                {this.state.name?.length > 11 ? '...' : ''},
               </Text>
             </View>
             <Text style={{color: '#fff'}}>Kami siap melayani anda</Text>
@@ -206,22 +232,29 @@ class HomeScreen extends React.PureComponent {
                   paddingVertical: 10,
                   backgroundColor: 'transparent',
                 }}
-                leftAvatar={
+                leftElement={
                   <View
                     style={{
-                      padding: 10,
                       borderRadius: 15,
-                      width: 48,
-                      height: 48,
-                      backgroundColor: data.icon.color,
-                      alignSelf: 'center',
+                      backgroundColor: '#000',
+                      elevation: 3,
                     }}>
-                    <MaterialCommunityIcons
-                      style={{alignSelf: 'center'}}
-                      name={data.icon.name}
-                      color={'#fff'}
-                      size={24}
-                    />
+                    <View
+                      style={{
+                        padding: 10,
+                        borderRadius: 15,
+                        width: 48,
+                        height: 48,
+                        backgroundColor: data.icon.color,
+                        alignSelf: 'center',
+                      }}>
+                      <MaterialCommunityIcons
+                        style={{alignSelf: 'center'}}
+                        name={data.icon.name}
+                        color={'#fff'}
+                        size={24}
+                      />
+                    </View>
                   </View>
                 }
                 title={data.title}
