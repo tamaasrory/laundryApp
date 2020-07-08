@@ -42,6 +42,7 @@ class OrderScreen extends React.PureComponent {
 
     isLoading: true,
     errorLoadingData: false,
+    errorSendOrder: false,
 
     reangeWaktuJemput: [],
   };
@@ -166,8 +167,7 @@ class OrderScreen extends React.PureComponent {
   }
 
   sendOrder() {
-    // console.log('test order', JSON.stringify(this.getData()));
-
+    //console.log('test order', JSON.stringify(this.getData()));
     let payload = this.getData();
     if (payload) {
       this.setState({showProgressDialog: true});
@@ -181,12 +181,14 @@ class OrderScreen extends React.PureComponent {
               msg: res.data.msg,
             },
             showResponseDialog: true,
+            errorSendOrder: false,
           });
           this.resetValue();
         })
         .catch(e => {
           console.log('error send order', e);
           this.setState({
+            errorSendOrder: true,
             showProgressDialog: false,
             response: {
               icon: {name: 'close', color: theme.colors.accent},
@@ -394,6 +396,11 @@ class OrderScreen extends React.PureComponent {
 
             {showJemput && (
               <RNDateTimePicker
+                minimumDate={
+                  dateJemput.getHours() >= 17
+                    ? new Date().setDate(dateJemput.getDate() + 1)
+                    : dateJemput
+                }
                 timeZoneOffsetInMinutes={0}
                 value={modePickerJemput === 'date' ? dateJemput : timeJemput}
                 mode={modePickerJemput}
@@ -455,7 +462,9 @@ class OrderScreen extends React.PureComponent {
               buttonStyle={{paddingHorizontal: 25}}
               onPress={() => {
                 this.setState({showResponseDialog: false});
-                this.props.navigation.pop(3);
+                if (!this.state.errorSendOrder) {
+                  this.props.navigation.pop(3);
+                }
               }}
             />
           </View>
