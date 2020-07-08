@@ -9,8 +9,16 @@ class User {
     return await SInfo.getItem('no_hp', {});
   }
 
+  async getEmail() {
+    return await SInfo.getItem('email', {});
+  }
+
   async isMember() {
     return await SInfo.getItem('isMember', {});
+  }
+
+  async request_upgrade_to_member() {
+    return await SInfo.getItem('request_upgrade_to_member', {});
   }
 }
 
