@@ -28,9 +28,9 @@ const LoginScreen = ({navigation}) => {
   });
   const [errorLogin, setErrorLogin] = useState({value: false});
   const [loginProcess, setLoginProcess] = useState({value: false});
-  const [email, setEmail] = useState({value: 'tama@tajriy.com', error: ''});
+  const [email, setEmail] = useState({value: '', error: ''});
   const [password, setPassword] = useState({
-    value: '123456',
+    value: '',
     error: '',
   });
 
@@ -55,7 +55,13 @@ const LoginScreen = ({navigation}) => {
         SInfo.setItem('token', token, {});
         SInfo.setItem('name', value.name, {});
         SInfo.setItem('no_hp', value.no_hp, {});
+        SInfo.setItem('email', value.email, {});
         SInfo.setItem('isMember', value.detail.isMember.toString(), {});
+        SInfo.setItem(
+          'request_upgrade_to_member',
+          value.detail.request_upgrade_to_member.toString(),
+          {},
+        );
 
         setLoginProcess({value: false});
         console.log('loginRespon', response.data);
