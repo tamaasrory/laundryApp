@@ -7,14 +7,7 @@ import styles from '../components/Styles';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Badge, Button, Divider, ListItem, Text} from 'react-native-elements';
 import RestApi from '../router/Api';
-import {
-  Animated,
-  Image,
-  StatusBar,
-  TouchableOpacity,
-  View,
-  Keyboard,
-} from 'react-native';
+import {Image, Keyboard, StatusBar, TouchableOpacity, View} from 'react-native';
 import {theme} from '../core/theme';
 import User from '../store/User';
 import BottomSheet from 'reanimated-bottom-sheet';
@@ -56,7 +49,6 @@ class KatalogScreen extends React.PureComponent {
   }
 
   componentDidMount(): void {
-    this.runPlaceHolder();
     this.getStatus();
     this.loadingData();
   }
@@ -382,7 +374,12 @@ class KatalogScreen extends React.PureComponent {
             </View>
             <Button
               type={'solid'}
-              disabled={!parseFloat(this.state.jumlahPesanan)}
+              disabled={
+                !(
+                  parseFloat(this.state.jumlahPesanan) &&
+                  this.state.selectedKategori
+                )
+              }
               buttonStyle={{
                 borderColor: '#1dbc60',
                 backgroundColor: '#1dbc60',
@@ -413,27 +410,6 @@ class KatalogScreen extends React.PureComponent {
       </View>
     </View>
   );
-
-  runPlaceHolder() {
-    if (
-      Array.isArray(this.loadingAnimated) &&
-      this.loadingAnimated.length > 0
-    ) {
-      Animated.parallel(
-        this.loadingAnimated.map(animate => {
-          if (animate && animate.getAnimated) {
-            return animate.getAnimated();
-          }
-          return null;
-        }),
-        {
-          stopTogether: false,
-        },
-      ).start(() => {
-        this.runPlaceHolder();
-      });
-    }
-  }
 
   _renderShimmerList(numberRow) {
     let shimmerRows = [];
@@ -471,10 +447,7 @@ class KatalogScreen extends React.PureComponent {
     );
   }
 
-  loadingAnimated = [];
-
   render() {
-    this.loadingAnimated = [];
     console.info('#render : ', 'KatalogScreen.js');
     const {
       listData,
@@ -535,7 +508,6 @@ class KatalogScreen extends React.PureComponent {
           style={{
             flex: 1,
             height: 100,
-            marginHorizontal: 10,
           }}>
           <FlatContainer
             onRefresh={() => this.loadingData()}
@@ -693,7 +665,7 @@ class KatalogScreen extends React.PureComponent {
           snapPoints={[bsMaxHeight, bsMidHeight, 0]}
           renderContent={this.renderContent}
           renderHeader={this.renderHeader}
-          initialSnap={2}
+          initialSnap={1}
           onCloseEnd={() => {
             if (this.state.openBs) {
               this.setState({openBs: false});
@@ -708,7 +680,7 @@ class KatalogScreen extends React.PureComponent {
             }}
             style={{
               position: 'absolute',
-              backgroundColor: 'rgba(0,0,0,0.27)',
+              backgroundColor: 'rgba(0,0,0,0.2)',
               height: '100%',
               width: '100%',
               zIndex: 1,
