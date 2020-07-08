@@ -19,8 +19,10 @@ class AccountScreen extends React.PureComponent {
     listData: [],
     onUpgradeProgress: false,
     member_status: false,
+    request_upgrade_to_member: false,
     account_name: null,
     no_hp: null,
+    email: null,
     btnUpgradeTitle: 'Upgrade Jadi Member',
   };
 
@@ -49,12 +51,25 @@ class AccountScreen extends React.PureComponent {
   }
 
   async initData() {
-    const {getName, getNoHp, isMember} = new User();
+    const {
+      getName,
+      getNoHp,
+      getEmail,
+      isMember,
+      request_upgrade_to_member,
+    } = new User();
     let member_status = (await isMember()) === '1';
+    let request_upgrade_to_member_ =
+      (await request_upgrade_to_member()) === '1';
     this.setState({
       account_name: await getName(),
       no_hp: await getNoHp(),
+      email: await getEmail(),
       member_status: member_status,
+      request_upgrade_to_member: request_upgrade_to_member_,
+      btnUpgradeTitle: request_upgrade_to_member_
+        ? 'Menunggu Konfirmasi'
+        : 'Upgrade Jadi Member',
     });
   }
 
@@ -63,15 +78,28 @@ class AccountScreen extends React.PureComponent {
       .then(res => {
         const {value} = res.data;
         let member_status = value.detail.isMember.toString() === '1';
+        let request_upgrade_to_member =
+          value.detail.request_upgrade_to_member.toString() === '1';
         this.setState({
           account_name: value.name,
           no_hp: value.no_hp,
+          email: value.email,
           member_status: member_status,
+          request_upgrade_to_member: request_upgrade_to_member,
+          btnUpgradeTitle: request_upgrade_to_member
+            ? 'Menunggu Konfirmasi'
+            : 'Upgrade Jadi Member',
         });
 
         SInfo.setItem('name', value.name, {});
         SInfo.setItem('no_hp', value.no_hp, {});
+        SInfo.setItem('email', value.email, {});
         SInfo.setItem('isMember', value.detail.isMember.toString(), {});
+        SInfo.setItem(
+          'request_upgrade_to_member',
+          value.detail.request_upgrade_to_member.toString(),
+          {},
+        );
       })
       .catch(error => {
         console.log('error account', error);
@@ -83,24 +111,36 @@ class AccountScreen extends React.PureComponent {
       onUpgradeProgress: true,
       btnUpgradeTitle: 'Mengirim Permintaan',
     });
-    RestApi.post('/upgrade-to-member')
+    RestApi.post('/user/upgrade-to-member')
       .then(res => {
+        SInfo.setItem('request_upgrade_to_member', '1', {});
         this.setState({
           onUpgradeProgress: false,
           btnUpgradeTitle: 'Menunggu Konfirmasi',
+          request_upgrade_to_member: true,
         });
+        console.log('Menunggu Konfirmasi');
       })
       .catch(error => {
         this.setState({
           onUpgradeProgress: false,
+          request_upgrade_to_member: false,
           btnUpgradeTitle: 'Upgrade Jadi Member',
         });
+        console.log('error upgrade', error);
       });
   };
 
   render() {
     console.info('#render : ', this.constructor.name);
-    const {member_status, account_name, no_hp} = this.state;
+    const {
+      member_status,
+      account_name,
+      no_hp,
+      email,
+      btnUpgradeTitle,
+      request_upgrade_to_member,
+    } = this.state;
     return (
       <View style={{flexGrow: 1, backgroundColor: '#fff'}}>
         <StatusBar
@@ -172,6 +212,21 @@ class AccountScreen extends React.PureComponent {
               underlayColor={'rgba(202,202,202,0.58)'}
               leftIcon={
                 <MaterialCommunityIcons
+                  name={'email'}
+                  size={24}
+                  color={theme.colors.primary}
+                />
+              }
+              title={<Text style={{fontWeight: 'bold'}}>Email</Text>}
+              subtitle={email}
+              titleStyle={styles.titleList}
+              subtitleStyle={styles.subtitleList}
+              bottomDivider
+            />
+            <ListItem
+              underlayColor={'rgba(202,202,202,0.58)'}
+              leftIcon={
+                <MaterialCommunityIcons
                   name={'phone'}
                   size={24}
                   color={theme.colors.primary}
@@ -193,14 +248,15 @@ class AccountScreen extends React.PureComponent {
                 />
               }
               title={<Text style={{fontWeight: 'bold'}}>Status</Text>}
-              subtitle={member_status === '1' ? 'Member' : 'Bukan Member'}
+              subtitle={member_status ? 'Member' : 'Bukan Member'}
               titleStyle={styles.titleList}
               subtitleStyle={styles.subtitleList}
               rightElement={
                 member_status ? null : (
                   <Button
                     type={'outline'}
-                    title={this.state.btnUpgradeTitle}
+                    title={btnUpgradeTitle}
+                    disabled={request_upgrade_to_member}
                     icon={
                       this.state.onUpgradeProgress ? (
                         <ActivityIndicator
@@ -232,8 +288,10 @@ class AccountScreen extends React.PureComponent {
               // this.setState({alertVisible: false});
               SInfo.deleteItem('token', {});
               SInfo.deleteItem('name', {});
+              SInfo.deleteItem('email', {});
               SInfo.deleteItem('no_hp', {});
               SInfo.deleteItem('isMember', {});
+              SInfo.deleteItem('request_upgrade_to_member', {});
               this.props.navigation.reset({
                 index: 0,
                 routes: [{name: 'LoginScreen'}],
