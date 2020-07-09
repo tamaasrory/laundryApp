@@ -15,7 +15,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 
 class AccountScreen extends React.PureComponent {
   state = {
-    alertVisible: false,
+    // alertVisible: false,
     listData: [],
     onUpgradeProgress: false,
     member_status: false,
