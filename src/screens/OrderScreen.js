@@ -212,6 +212,13 @@ class OrderScreen extends React.PureComponent {
     }
   }
 
+  checkDelivTime(data) {
+    const availableTime =
+      parseInt(data.berakhir.substring(0, 2)) - 1 >= this.date.getHours();
+    const availableDate = this.state.dateJemput > this.date;
+    return availableTime || availableDate;
+  }
+
   render() {
     const {
       dateJemput,
@@ -297,27 +304,15 @@ class OrderScreen extends React.PureComponent {
               <Picker
                 mode={'dropdown'}
                 selectedValue={this.state.selectedRangeWaktu}
-                onValueChange={(itemValue, itemIndex) => {
-                  const {berakhir} = itemValue;
-                  this.setState({
-                    selectedRangeWaktu:
-                      parseInt(berakhir.substring(0, 2)) - 1 >=
-                      this.date.getHours()
-                        ? itemValue
-                        : null,
-                  });
+                onValueChange={(value, index) => {
+                  const range = this.checkDelivTime(value) ? value : null;
+                  this.setState({selectedRangeWaktu: range});
                 }}>
                 <Picker.Item label={'Pilih Waktu'} value={null} />
                 {this.state.reangeWaktuJemput.map(data => {
-                  const availableTime =
-                    parseInt(data.berakhir.substring(0, 2)) - 1 >=
-                    this.date.getHours();
-                  const availableDate = this.state.dateJemput > this.date;
                   return (
                     <Picker.Item
-                      color={
-                        availableTime || availableDate ? '#000' : '#c4c4c4'
-                      }
+                      color={this.checkDelivTime(data) ? '#000' : '#c4c4c4'}
                       label={`${data.label} (${data.mulai} - ${data.berakhir})`}
                       value={data}
                     />
