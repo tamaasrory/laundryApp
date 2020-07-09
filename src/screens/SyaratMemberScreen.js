@@ -4,6 +4,8 @@ import {Button, Text} from 'react-native-elements';
 import styles from '../components/Styles';
 import {StatusBar, View} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import WebView from 'react-native-webview';
+import Path from '../router/Path';
 
 class SyaratMemberScreen extends React.PureComponent {
   constructor(props) {
@@ -50,11 +52,9 @@ class SyaratMemberScreen extends React.PureComponent {
         </View>
 
         <View style={{flex: 1, height: 100}}>
-          <FlatContainer style={{paddingHorizontal: 25, paddingTop: 10}}>
-            <Text style={[styles.textSecondary, {marginVertical: 10}]}>
-              Berikut adalah persyaratan menjadi member Ethan Laundry:
-            </Text>
-          </FlatContainer>
+          <WebView
+            source={{uri: `${Path.baseUrl}/api/v1/persyaratan-menjadi-member`}}
+          />
         </View>
       </View>
     );
