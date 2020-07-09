@@ -1,6 +1,6 @@
 import React from 'react';
 import FlatContainer from '../components/FlatContainer';
-import {Button, Divider, Input, Text} from 'react-native-elements';
+import {Button, Input, Text} from 'react-native-elements';
 import styles from '../components/Styles';
 import DateTimePicker from '../components/DateTimePicker';
 import {Picker, TouchableHighlight, View} from 'react-native';
@@ -16,9 +16,9 @@ import RestApi from '../router/Api';
 @inject('store', 'orderStore')
 @observer
 class OrderScreen extends React.PureComponent {
+  date = new Date();
   state = {
-    // date picker
-    dateJemput: new Date(),
+    dateJemput: this.date,
     // setter
     showJemput: false,
     modePickerJemput: 'date',
@@ -54,6 +54,12 @@ class OrderScreen extends React.PureComponent {
     super(props);
     this.store = this.props.store;
     this.loadingWaktuJemput();
+  }
+
+  getCurrentDateTime() {
+    return this.date.getHours() >= 17
+      ? new Date(new Date().setDate(this.date.getDate() + 1))
+      : this.date;
   }
 
   loadingWaktuJemput() {
@@ -104,8 +110,11 @@ class OrderScreen extends React.PureComponent {
   }
 
   onChangeDateJemput = (event, selected) => {
-    const current = selected || this.state.dateJemput;
-    let date = this.state.dateJemput;
+    const {dateJemput} = this.state;
+    const currentTime = this.getCurrentDateTime();
+    const alternate = dateJemput >= currentTime ? dateJemput : currentTime;
+    const current = selected ? selected : alternate;
+    let date = selected ? current : alternate;
     date = date ? this.convertDate(date, '{Y}-{M}-{D}') : date;
     this.setState({showJemput: false, dateJemput: current, waktuJemput: date});
   };
@@ -205,7 +214,6 @@ class OrderScreen extends React.PureComponent {
 
   render() {
     const {
-      timeJemput,
       dateJemput,
       showJemput,
       modePickerJemput,
@@ -266,9 +274,7 @@ class OrderScreen extends React.PureComponent {
               </Text>
             </View>
             <DateTimePicker
-              value={
-                waktuJemput ? this.convertDate(dateJemput, '{D}/{M}/{Y}') : ''
-              }
+              value={waktuJemput}
               onPress={() =>
                 this.setState({showJemput: true, modePickerJemput: 'date'})
               }
@@ -292,12 +298,26 @@ class OrderScreen extends React.PureComponent {
                 mode={'dropdown'}
                 selectedValue={this.state.selectedRangeWaktu}
                 onValueChange={(itemValue, itemIndex) => {
-                  this.setState({selectedRangeWaktu: itemValue});
+                  const {berakhir} = itemValue;
+                  this.setState({
+                    selectedRangeWaktu:
+                      parseInt(berakhir.substring(0, 2)) - 1 >=
+                      this.date.getHours()
+                        ? itemValue
+                        : null,
+                  });
                 }}>
                 <Picker.Item label={'Pilih Waktu'} value={null} />
                 {this.state.reangeWaktuJemput.map(data => {
+                  const availableTime =
+                    parseInt(data.berakhir.substring(0, 2)) - 1 >=
+                    this.date.getHours();
+                  const availableDate = this.state.dateJemput > this.date;
                   return (
                     <Picker.Item
+                      color={
+                        availableTime || availableDate ? '#000' : '#c4c4c4'
+                      }
                       label={`${data.label} (${data.mulai} - ${data.berakhir})`}
                       value={data}
                     />
@@ -396,21 +416,13 @@ class OrderScreen extends React.PureComponent {
 
             {showJemput && (
               <RNDateTimePicker
-                minimumDate={
-                  dateJemput.getHours() >= 17
-                    ? new Date().setDate(dateJemput.getDate() + 1)
-                    : dateJemput
-                }
+                minimumDate={this.getCurrentDateTime()}
                 timeZoneOffsetInMinutes={0}
-                value={modePickerJemput === 'date' ? dateJemput : timeJemput}
+                value={dateJemput}
                 mode={modePickerJemput}
                 is24Hour={true}
                 display="default"
-                onChange={
-                  modePickerJemput === 'date'
-                    ? this.onChangeDateJemput
-                    : this.onChangeTimeJemput
-                }
+                onChange={this.onChangeDateJemput}
               />
             )}
             <Button
