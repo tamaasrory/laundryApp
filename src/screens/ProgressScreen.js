@@ -89,17 +89,29 @@ class ProgressScreen extends React.PureComponent {
               ]}>
               {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
             </Text>
-            <Text
-              style={[
-                styles.titleList,
-                {
-                  color: this.getStatusColor(status.label),
-                  marginTop: 2,
-                  fontSize: 12,
-                },
-              ]}>
-              {status.label}
-            </Text>
+            <View style={{marginTop: 2, flexDirection: 'row'}}>
+              <Text
+                style={[
+                  styles.titleList,
+                  {
+                    color: this.getStatusColor(status.label),
+                    fontSize: 12,
+                  },
+                ]}>
+                {status.label}
+              </Text>
+              {status.label !== 'Menunggu' ? (
+                <Text
+                  style={{
+                    fontSize: 11,
+                    color: theme.colors.backdrop,
+                    alignSelf: 'flex-end',
+                    marginLeft: 3,
+                  }}>
+                  ({moment(status.waktu).format('DD/MM HH:mm')})
+                </Text>
+              ) : null}
+            </View>
             {selectedKat.waktuPengantaran ? (
               <Text style={{fontSize: 11, color: theme.colors.backdrop}}>
                 Akan diantar {selectedKat.waktuPengantaran}
@@ -150,6 +162,7 @@ class ProgressScreen extends React.PureComponent {
               'Sedang Dijemput',
               'Sedang Dilaundry',
               'Telah Diterima',
+              'Telah Dijemput',
             ].includes(status.label) ? (
               <Button
                 type={'outline'}
@@ -463,6 +476,7 @@ class ProgressScreen extends React.PureComponent {
       'Laundry Selesai': '#00aa2f', // Laundry Selesai
       'Sedang Diantar': '#ff8e00', // Sedang Diantar
       'Telah Diterima': '#00aa2f', // Telah Diterima
+      'Telah Dijemput': '#00aa2f', // Telah Diterima
     };
     return status[label];
   }
@@ -476,6 +490,7 @@ class ProgressScreen extends React.PureComponent {
       'Laundry Selesai',
       'Sedang Diantar',
       'Telah Diterima',
+      'Telah Dijemput',
     ];
     return status[key - 1];
   }
@@ -489,6 +504,7 @@ class ProgressScreen extends React.PureComponent {
       '#00aa2f', // Laundry Selesai
       '#ff8e00', // Sedang Diantar
       '#00aa2f', // Telah Diterima
+      '#00aa2f', // Telah Dijemput
     ];
     return status[key - 1];
   }

@@ -1,11 +1,5 @@
 import React, {memo, useState} from 'react';
-import {
-  TouchableOpacity,
-  StyleSheet,
-  Text,
-  View,
-  StatusBar,
-} from 'react-native';
+import {StatusBar, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import CenterContainer from '../components/CenterContainer';
 import Logo from '../components/Logo';
 import Button from '../components/Button';

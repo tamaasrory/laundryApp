@@ -1,5 +1,4 @@
 import React from 'react';
-import FlatContainer from '../components/FlatContainer';
 import {Button, Text} from 'react-native-elements';
 import styles from '../components/Styles';
 import {StatusBar, View} from 'react-native';

@@ -3,7 +3,6 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import styles from './Styles';
 import {View} from 'react-native';
 import React from 'react';
-import {theme} from '../core/theme';
 
 class ChipOptions extends React.PureComponent {
   constructor(props) {

@@ -1,5 +1,5 @@
 import React, {memo} from 'react';
-import {View, ScrollView} from 'react-native';
+import {ScrollView, View} from 'react-native';
 import styles from './Styles';
 
 const CenterContainer = ({children}) => (

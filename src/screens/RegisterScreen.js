@@ -1,15 +1,10 @@
 import React, {memo, useState} from 'react';
-import {View, StyleSheet, TouchableOpacity, StatusBar} from 'react-native';
+import {StatusBar, StyleSheet, TouchableOpacity, View} from 'react-native';
 import TextInput from '../components/TextInput';
 import {theme} from '../core/theme';
-import {
-  emailValidator,
-  passwordValidator,
-  nameValidator,
-  noHpValidator,
-} from '../core/utils';
+import {emailValidator, nameValidator, noHpValidator, passwordValidator} from '../core/utils';
 import RestApi from '../router/Api';
-import {Text, Button} from 'react-native-elements';
+import {Button, Text} from 'react-native-elements';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {ProgressBar} from '@react-native-community/progress-bar-android';
 import styles from '../components/Styles';

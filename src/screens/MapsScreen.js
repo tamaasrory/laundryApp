@@ -3,18 +3,12 @@
  * @flow strict-local
  */
 import React from 'react';
-import {StyleSheet, View, Text, SafeAreaView, Image} from 'react-native';
+import {Image, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import MapView from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
 import Geocoder from 'react-native-geocoder';
 import marker from '../assets/icons8-marker.png';
-import {
-  check,
-  openSettings,
-  PERMISSIONS,
-  request,
-  RESULTS,
-} from 'react-native-permissions';
+import {check, openSettings, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 import {inject, observer} from 'mobx-react';
 import {Button} from 'react-native-elements';
 import {theme} from '../core/theme';

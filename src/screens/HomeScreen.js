@@ -5,14 +5,7 @@ import React from 'react';
 import {ListItem, Text} from 'react-native-elements';
 import FlatContainer from '../components/FlatContainer';
 import Carousel, {ParallaxImage} from 'react-native-snap-carousel';
-import {
-  Dimensions,
-  Platform,
-  StatusBar,
-  StyleSheet,
-  TouchableHighlight,
-  View,
-} from 'react-native';
+import {Dimensions, Platform, StatusBar, StyleSheet, TouchableHighlight, View} from 'react-native';
 import User from '../store/User';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {theme} from '../core/theme';

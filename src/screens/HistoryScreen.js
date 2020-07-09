@@ -71,16 +71,29 @@ class HistoryScreen extends React.PureComponent {
             <Text style={[styles.titleList, {color: theme.colors.secondary}]}>
               {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
             </Text>
-            <Text
-              style={[
-                styles.titleList,
-                {
-                  color: this.getStatusColor(status.label),
-                  marginTop: 2,
-                },
-              ]}>
-              {status.label}
-            </Text>
+            <View style={{marginTop: 2, flexDirection: 'row'}}>
+              <Text
+                style={[
+                  styles.titleList,
+                  {
+                    color: this.getStatusColor(status.label),
+                    fontSize: 12,
+                  },
+                ]}>
+                {status.label}
+              </Text>
+              {status.label !== 'Menunggu' ? (
+                <Text
+                  style={{
+                    fontSize: 11,
+                    color: theme.colors.backdrop,
+                    alignSelf: 'flex-end',
+                    marginLeft: 3,
+                  }}>
+                  ({moment(status.waktu).format('DD/MM HH:mm')})
+                </Text>
+              ) : null}
+            </View>
           </View>
         ),
         rightAvatar: (
@@ -329,6 +342,7 @@ class HistoryScreen extends React.PureComponent {
       'Laundry Selesai': '#00aa2f', // Laundry Selesai
       'Sedang Diantar': '#ff8e00', // Sedang Diantar
       'Telah Diterima': '#00aa2f', // Telah Diterima
+      'Telah Dijemput': '#00aa2f', // Telah Diterima
     };
     return status[label];
   }
@@ -342,6 +356,7 @@ class HistoryScreen extends React.PureComponent {
       'Laundry Selesai',
       'Sedang Diantar',
       'Telah Diterima',
+      'Telah Dijemput',
     ];
     return status[key - 1];
   }
@@ -355,6 +370,7 @@ class HistoryScreen extends React.PureComponent {
       '#00aa2f', // Laundry Selesai
       '#ff8e00', // Sedang Diantar
       '#00aa2f', // Telah Diterima
+      '#00aa2f', // Telah Dijemput
     ];
     return status[key - 1];
   }

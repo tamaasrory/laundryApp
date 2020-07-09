@@ -1,5 +1,5 @@
 import React, {memo, useState} from 'react';
-import {Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {emailValidator} from '../core/utils';
 import CenterContainer from '../components/CenterContainer';
 import BackButton from '../components/BackButton';

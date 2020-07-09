@@ -1,5 +1,5 @@
 import React, {memo} from 'react';
-import {View, ScrollView, RefreshControl} from 'react-native';
+import {RefreshControl, ScrollView, View} from 'react-native';
 import styles from './Styles';
 
 function wait(timeout) {
