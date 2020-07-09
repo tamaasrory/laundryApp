@@ -22,19 +22,10 @@ class HistoryScreen extends React.PureComponent {
   bs = React.createRef();
   state = {
     listData: [],
-    kategori: [],
-
-    orderList: [],
     selectedTransaksi: null,
     selectedKategori: null,
-    jumlahPesanan: 1,
-    totalHarga: 0,
-
     bsMaxHeight: 0,
     bsMidHeight: 0,
-    alertVisible: false,
-    pesanBatal: 'Batalkan Order Laundry Sekarang ?',
-    batalID: null,
     openBs: false,
     isLoading: true,
     errorLoadingData: false,
@@ -227,7 +218,7 @@ class HistoryScreen extends React.PureComponent {
       created_at,
       detail,
       total,
-      status,
+      pembayaran,
     } = this.state.selectedTransaksi;
     return (
       <View
@@ -258,7 +249,26 @@ class HistoryScreen extends React.PureComponent {
         <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
         <View style={styles.rowsBetween}>
           <Text style={[styles.textLabel, {fontSize: 15}]}>Total</Text>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>Rp{total}</Text>
+          <Text style={[styles.textLabel, {fontSize: 15}]}>
+            Rp{total.toString().formatNumber()}
+          </Text>
+        </View>
+        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+        <View style={styles.rowsBetween}>
+          <Text style={[styles.textLabel, {fontSize: 15}]}>Tunai</Text>
+          <Text style={[styles.textLabel, {fontSize: 15}]}>
+            Rp{pembayaran.toString().formatNumber()}
+          </Text>
+        </View>
+        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+        <View style={styles.rowsBetween}>
+          <Text style={[styles.textLabel, {fontSize: 15}]}>Belum Dibayar</Text>
+          <Text style={[styles.textLabel, {fontSize: 15}]}>
+            Rp
+            {(parseFloat(total) - parseFloat(pembayaran))
+              .toString()
+              .formatNumber()}
+          </Text>
         </View>
         <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
         <View style={{marginVertical: 10}}>
@@ -471,12 +481,13 @@ class HistoryScreen extends React.PureComponent {
                   );
                 });
 
+                const tmpTotalLaundry = totalLaundry;
                 totalLaundry = totalLaundry.toString().formatNumber();
                 return (
                   <ListItem
                     key={i}
                     underlayColor={'rgba(0,0,0,0.14)'}
-                    onPress={() => this.showBottomSheet(i, totalLaundry)}
+                    onPress={() => this.showBottomSheet(i, tmpTotalLaundry)}
                     title={null}
                     // titleStyle={[styles.titleList, {fontSize: 13, color: 'grey'}]}
                     subtitle={

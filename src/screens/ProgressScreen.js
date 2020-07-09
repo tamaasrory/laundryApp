@@ -23,13 +23,9 @@ class ProgressScreen extends React.PureComponent {
   bs = React.createRef();
   state = {
     listData: [],
-    kategori: [],
 
-    orderList: [],
     selectedTransaksi: null,
     selectedKategori: null,
-    jumlahPesanan: 1,
-    totalHarga: 0,
 
     bsMaxHeight: 0,
     bsMidHeight: 0,
