@@ -585,6 +585,7 @@ class KatalogScreen extends React.PureComponent {
                           Rp{harga} /{' '}
                           {list.detail.satuan.toString().toUpperCase()}
                         </Text>
+                        {/*hanya discount global saja yang muncul*/}
                         {this.showDiscount(list.detail, 'Disc. (', ')', {
                           fontSize: 13,
                           color: theme.colors.accent,
