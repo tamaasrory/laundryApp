@@ -12,6 +12,7 @@ import {ProgressBar} from '@react-native-community/progress-bar-android';
 import AlertDialog from '../components/AlertDialog';
 import TextInputMask from 'react-native-text-input-mask';
 import RestApi from '../router/Api';
+import {Colors} from 'react-native-paper';
 
 @inject('store', 'orderStore')
 @observer
@@ -182,17 +183,30 @@ class OrderScreen extends React.PureComponent {
       this.setState({showProgressDialog: true});
       RestApi.post('/order/baru', payload)
         .then(res => {
+          const {msg, value} = res.data;
           console.log(res.data);
-          this.setState({
-            showProgressDialog: false,
-            response: {
-              icon: {name: 'check', color: '#36cb04'},
-              msg: res.data.msg,
-            },
-            showResponseDialog: true,
-            errorSendOrder: false,
-          });
-          this.resetValue();
+          if (value === '1') {
+            this.setState({
+              showProgressDialog: false,
+              response: {
+                icon: {name: 'check', color: '#36cb04'},
+                msg: res.data.msg,
+              },
+              showResponseDialog: true,
+              errorSendOrder: false,
+            });
+            this.resetValue();
+          } else {
+            this.setState({
+              showProgressDialog: false,
+              response: {
+                icon: {name: 'emoticon-sad', color: Colors.grey400},
+                msg: res.data.msg,
+              },
+              showResponseDialog: true,
+              errorSendOrder: true,
+            });
+          }
         })
         .catch(e => {
           console.log('error send order', e);
@@ -460,7 +474,7 @@ class OrderScreen extends React.PureComponent {
               color={this.state.response.icon.color}
               size={90}
             />
-            <Text style={{fontSize: 16, marginBottom: 15}}>
+            <Text style={{fontSize: 16, marginBottom: 15, textAlign: 'center'}}>
               {this.state.response.msg}
             </Text>
             <Button
@@ -471,6 +485,7 @@ class OrderScreen extends React.PureComponent {
                 this.setState({showResponseDialog: false});
                 if (!this.state.errorSendOrder) {
                   this.props.navigation.pop(3);
+                  this.props.navigation.push({});
                 }
               }}
             />

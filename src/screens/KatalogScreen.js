@@ -358,7 +358,11 @@ class KatalogScreen extends React.PureComponent {
                   fontSize: 18,
                   paddingVertical: 2,
                 }}
-                mask={'[9999],[99]'}
+                mask={
+                  this.state.selectedBarang.detail.decimal
+                    ? '[9999],[99]'
+                    : '[9999]'
+                }
               />
               <Badge
                 value={this.state.selectedBarang.detail.satuan.toUpperCase()}
