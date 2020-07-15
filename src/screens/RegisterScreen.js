@@ -2,7 +2,12 @@ import React, {memo, useState} from 'react';
 import {StatusBar, StyleSheet, TouchableOpacity, View} from 'react-native';
 import TextInput from '../components/TextInput';
 import {theme} from '../core/theme';
-import {emailValidator, nameValidator, noHpValidator, passwordValidator} from '../core/utils';
+import {
+  emailValidator,
+  nameValidator,
+  noHpValidator,
+  passwordValidator,
+} from '../core/utils';
 import RestApi from '../router/Api';
 import {Button, Text} from 'react-native-elements';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';

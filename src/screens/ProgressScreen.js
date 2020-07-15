@@ -62,8 +62,10 @@ class ProgressScreen extends React.PureComponent {
       });
   }
 
-  listViewBarang(detail) {
+  listViewBarang() {
     // console.log(JSON.stringify(detail));
+    const {detail} = this.state.selectedTransaksi;
+    console.log('re render');
     let kategori = [];
     detail.barang.map(d => {
       let selectedKat = d.selectedKategori;
@@ -71,6 +73,7 @@ class ProgressScreen extends React.PureComponent {
 
       kategori.push({
         key: d.idk,
+        value: d.idk,
         title: (
           <Text
             style={[
@@ -112,9 +115,19 @@ class ProgressScreen extends React.PureComponent {
                 </Text>
               ) : null}
             </View>
-            {selectedKat.waktuPengantaran ? (
-              <Text style={{fontSize: 11, color: theme.colors.backdrop}}>
-                Akan diantar {selectedKat.waktuPengantaran}
+            {d.waktuPengantaran ? (
+              <Text
+                style={{
+                  marginTop: 3,
+                  fontSize: 11,
+                  // borderRadius: 5,
+                  // alignSelf: 'flex-start',
+                  // paddingHorizontal: 5,
+                  // paddingVertical: 2,
+                  // backgroundColor: 'rgba(215,215,215,0.4)',
+                }}>
+                Estimasi selesai{' '}
+                {moment(d.waktuPengantaran).format('DD/MM HH:mm')}
               </Text>
             ) : null}
           </View>
@@ -166,23 +179,17 @@ class ProgressScreen extends React.PureComponent {
             ].includes(status.label) ? (
               <Button
                 type={'outline'}
-                title={'Telah Diterima'}
+                title={'Terima Laundry'}
                 titleStyle={{
                   fontSize: 12,
-                  color: this.getStatusColorByKey(7),
+                  color: '#fff',
                 }}
-                onPress={() => {
-                  this.setState({
-                    pesanDialog:
-                      'Apakah Benar anda telah menerima barang yang anda laundry?',
-                    possitiveBtn: () => this.postTerimaLaundry(d.idk),
-                    alertVisible: true,
-                  });
-                }}
+                onPress={() => this.postTerimaLaundry(d.idk)}
+                containerStyle={{marginTop: 2}}
                 buttonStyle={{
                   paddingVertical: 5,
-                  marginTop: 2,
                   borderRadius: 15,
+                  backgroundColor: this.getStatusColorByKey(7),
                   borderColor: this.getStatusColorByKey(7),
                 }}
               />
@@ -196,29 +203,45 @@ class ProgressScreen extends React.PureComponent {
   }
 
   postTerimaLaundry(idk) {
-    const oldPesan = this.state.pesanDialog;
+    let transaksi = this.state.selectedTransaksi;
+    // const oldPesan = this.state.pesanDialog;
     RestApi.post('/order/terima', {
-      id: this.state.selectedTransaksi.ido,
+      id: transaksi.ido,
       idk: idk,
     })
       .then(res => {
-        console.log(res.data.value);
-        this.bs.current.snapTo(2);
-        this.loadingData();
-        this.setState({
-          alertVisible: false,
-          pesanDialog: oldPesan,
-          openBs: false,
-        });
+        console.log('terima laundry', res.data.value);
+        if (res.data.value !== '0') {
+          let barang = transaksi.detail.barang;
+          let tmpIndex= null;
+          for (let i = 0; i < barang.length; i++) {
+            if (JSON.stringify(barang[i]).includes(idk)) {
+              transaksi.detail.barang[i].status.push(res.data.value);
+              tmpIndex = i;
+            }
+          }
+          this.setState({selectedTransaksi: transaksi});
+          console.log(
+            'selectedTransaksi',
+            this.state.selectedTransaksi.detail.barang[tmpIndex].status,
+          );
+        }
+        // this.bs.current.snapTo(2);
+        // this.loadingData();
+        // this.setState({
+        //   alertVisible: false,
+        //   pesanDialog: oldPesan,
+        //   openBs: false,
+        // });
       })
       .catch(error => {
         console.log(error);
         this.bs.current.snapTo(2);
-        this.setState({
-          alertVisible: false,
-          pesanDialog: oldPesan,
-          openBs: false,
-        });
+        // this.setState({
+        //   alertVisible: false,
+        //   pesanDialog: oldPesan,
+        //   openBs: false,
+        // });
       });
   }
 
@@ -314,7 +337,7 @@ class ProgressScreen extends React.PureComponent {
     return (
       <View
         style={{
-          paddingHorizontal: 20,
+          paddingHorizontal: 15,
           paddingBottom: 15,
           backgroundColor: '#fff',
         }}>
@@ -329,10 +352,11 @@ class ProgressScreen extends React.PureComponent {
           Barang Laundry
         </Text>
         <ListOptions
-          options={this.listViewBarang(detail)}
+          options={this.listViewBarang()}
           containerStyle={{
-            paddingHorizontal: 0,
             paddingVertical: 10,
+            borderRadius: 0,
+            paddingHorizontal: 0,
             borderTopWidth: 0.5,
             borderTopColor: '#e2e2e2',
           }}
@@ -366,7 +390,7 @@ class ProgressScreen extends React.PureComponent {
           style={{
             flexDirection: 'row',
             marginVertical: 10,
-            backgroundColor: 'rgba(0,183,255,0.38)',
+            backgroundColor: 'rgba(0,183,255,0.4)',
             borderRadius: 10,
             paddingVertical: 7,
             paddingHorizontal: 10,
@@ -377,9 +401,9 @@ class ProgressScreen extends React.PureComponent {
             color={theme.colors.primary}
             style={{alignSelf: 'center'}}
           />
-          <Text style={{fontSize: 12, marginLeft: 5, marginRight: 15}}>
-            Waktu pengantaran yang tertera pada pembayaran di atas merupakan
-            estimasi tercepat
+          <Text style={{fontSize: 12, marginLeft: 8, marginRight: 16}}>
+            Waktu selesai laundry yang tertera pada pembayaran di atas merupakan
+            estimasi waktu tercepat laundry akan kami selesaikan.
           </Text>
         </View>
         <View style={{marginVertical: 10}}>
