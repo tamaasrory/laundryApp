@@ -2,7 +2,7 @@ import {View} from 'react-native';
 import {ListItem} from 'react-native-elements';
 import React from 'react';
 
-class ChipOptions extends React.PureComponent {
+class ListOptions extends React.PureComponent {
   constructor(props) {
     super(props);
   }
@@ -40,4 +40,4 @@ class ChipOptions extends React.PureComponent {
   }
 }
 
-export default ChipOptions;
+export default ListOptions;
