@@ -34,6 +34,7 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
+import DetailOrderScreen from './src/screens/DetailOrderScreen';
 
 // eslint-disable-next-line no-extend-native
 String.prototype.formatNumber =
@@ -151,6 +152,11 @@ class App extends React.PureComponent {
               <Stack.Screen
                 name="MainScreen"
                 component={HomeScreen}
+                options={{headerShown: false}}
+              />
+              <Stack.Screen
+                name="DetailOrderScreen"
+                component={DetailOrderScreen}
                 options={{headerShown: false}}
               />
               <Stack.Screen
