@@ -4,14 +4,11 @@
 import React from 'react';
 import FlatContainer from '../components/FlatContainer';
 import styles from '../components/Styles';
-import {Button, Divider, ListItem, Text} from 'react-native-elements';
+import {Button, ListItem, Text} from 'react-native-elements';
 import RestApi from '../router/Api';
-import {StatusBar, TouchableOpacity, View} from 'react-native';
+import {StatusBar, View} from 'react-native';
 import {theme} from '../core/theme';
-import BottomSheet from 'reanimated-bottom-sheet';
 import {inject, observer} from 'mobx-react';
-import ListOptions from '../components/ListOptions';
-import AlertDialog from '../components/AlertDialog';
 import moment from '../components/DateFormater';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
@@ -62,196 +59,6 @@ class ProgressScreen extends React.PureComponent {
       });
   }
 
-  listViewBarang() {
-    // console.log(JSON.stringify(detail));
-    const {detail} = this.state.selectedTransaksi;
-    console.log('re render');
-    let kategori = [];
-    detail.barang.map(d => {
-      let selectedKat = d.selectedKategori;
-      let status = d.status[d.status.length - 1];
-
-      kategori.push({
-        key: d.idk,
-        value: d.idk,
-        title: (
-          <Text
-            style={[
-              styles.titleList,
-              {color: theme.colors.secondary, fontSize: 13, fontWeight: 'bold'},
-            ]}>
-            {d.name}
-          </Text>
-        ),
-        subtitle: (
-          <View>
-            <Text
-              style={[
-                styles.titleList,
-                {color: theme.colors.secondary, fontSize: 12},
-              ]}>
-              {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
-            </Text>
-            <View style={{marginTop: 2, flexDirection: 'row'}}>
-              <Text
-                style={[
-                  styles.titleList,
-                  {
-                    color: this.getStatusColor(status.label),
-                    fontSize: 12,
-                  },
-                ]}>
-                {status.label}
-              </Text>
-              {status.label !== 'Menunggu' ? (
-                <Text
-                  style={{
-                    fontSize: 11,
-                    color: theme.colors.backdrop,
-                    alignSelf: 'flex-end',
-                    marginLeft: 3,
-                  }}>
-                  ({moment(status.waktu).format('DD/MM HH:mm')})
-                </Text>
-              ) : null}
-            </View>
-            {d.waktuPengantaran ? (
-              <Text
-                style={{
-                  marginTop: 3,
-                  fontSize: 11,
-                  // borderRadius: 5,
-                  // alignSelf: 'flex-start',
-                  // paddingHorizontal: 5,
-                  // paddingVertical: 2,
-                  // backgroundColor: 'rgba(215,215,215,0.4)',
-                }}>
-                Estimasi selesai{' '}
-                {moment(d.waktuPengantaran).format('DD/MM HH:mm')}
-              </Text>
-            ) : null}
-          </View>
-        ),
-        rightAvatar: (
-          <View style={{flexDirection: 'column'}}>
-            <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-              {d.detail.diskonStatus || selectedKat.diskonStatus ? (
-                <Text style={{color: theme.colors.accent, fontSize: 12}}>
-                  Disc.
-                </Text>
-              ) : null}
-              {this.showDiscount(
-                d.detail,
-                '',
-                '',
-                {
-                  color: theme.colors.accent,
-                  fontSize: 12,
-                },
-                detail.isMember,
-              )}
-              {d.detail.diskonStatus && selectedKat.diskonStatus ? (
-                <Text style={{color: theme.colors.accent, fontSize: 12}}>
-                  &nbsp;&&nbsp;
-                </Text>
-              ) : null}
-              {this.showDiscount(
-                selectedKat,
-                '',
-                '',
-                {
-                  color: theme.colors.accent,
-                  fontSize: 12,
-                },
-                detail.isMember,
-              )}
-            </View>
-            <Text style={[styles.subtitleList, {textAlign: 'right'}]}>
-              {selectedKat.harga.toString().formatNumber()} (x{d.jumlah})
-            </Text>
-            {![
-              'Menunggu',
-              'Dibatalkan',
-              'Sedang Dijemput',
-              'Sedang Dilaundry',
-              'Telah Diterima',
-              'Telah Dijemput',
-            ].includes(status.label) ? (
-              <Button
-                type={'outline'}
-                title={'Terima Laundry'}
-                titleStyle={{
-                  fontSize: 12,
-                  color: '#fff',
-                }}
-                onPress={() => this.postTerimaLaundry(d.idk)}
-                containerStyle={{marginTop: 2}}
-                buttonStyle={{
-                  paddingVertical: 5,
-                  borderRadius: 15,
-                  backgroundColor: this.getStatusColorByKey(7),
-                  borderColor: this.getStatusColorByKey(7),
-                }}
-              />
-            ) : null}
-          </View>
-        ),
-      });
-    });
-
-    return kategori;
-  }
-
-  postTerimaLaundry(idk) {
-    let transaksi = this.state.selectedTransaksi;
-    // const oldPesan = this.state.pesanDialog;
-    RestApi.post('/order/terima', {
-      id: transaksi.ido,
-      idk: idk,
-    })
-      .then(res => {
-        console.log('terima laundry', res.data.value);
-        if (res.data.value !== '0') {
-          let barang = transaksi.detail.barang;
-          let tmpIndex= null;
-          for (let i = 0; i < barang.length; i++) {
-            if (JSON.stringify(barang[i]).includes(idk)) {
-              transaksi.detail.barang[i].status.push(res.data.value);
-              tmpIndex = i;
-            }
-          }
-          this.setState({selectedTransaksi: transaksi});
-          console.log(
-            'selectedTransaksi',
-            this.state.selectedTransaksi.detail.barang[tmpIndex].status,
-          );
-        }
-        // this.bs.current.snapTo(2);
-        // this.loadingData();
-        // this.setState({
-        //   alertVisible: false,
-        //   pesanDialog: oldPesan,
-        //   openBs: false,
-        // });
-      })
-      .catch(error => {
-        console.log(error);
-        this.bs.current.snapTo(2);
-        // this.setState({
-        //   alertVisible: false,
-        //   pesanDialog: oldPesan,
-        //   openBs: false,
-        // });
-      });
-  }
-
-  showBottomSheet(indexRow, total) {
-    let data = this.state.listData[indexRow];
-    data.total = total;
-    this.setState({selectedTransaksi: data, openBs: true});
-    this.bs.current.snapTo(1);
-  }
-
   formatDiskon(diskon) {
     return parseFloat(diskon.toString().replace('%', ''));
   }
@@ -296,200 +103,6 @@ class ProgressScreen extends React.PureComponent {
     }
     return total;
   }
-
-  showDiscount(detail, prefix, suffix, style, isMember) {
-    if (detail.diskonStatus) {
-      if (isMember) {
-        if (this.formatDiskon(detail.diskon.member) !== 0) {
-          return (
-            <Text style={style}>
-              {prefix}
-              {detail.diskon.member}
-              {suffix}
-            </Text>
-          );
-        }
-      } else {
-        if (this.formatDiskon(detail.diskon.general) !== 0) {
-          return (
-            <Text style={style}>
-              {prefix}
-              {detail.diskon.general}
-              {suffix}
-            </Text>
-          );
-        }
-      }
-    }
-    return null;
-  }
-
-  content() {
-    const {
-      ido,
-      created_at,
-      detail,
-      total,
-      status,
-      pembayaran,
-    } = this.state.selectedTransaksi;
-
-    return (
-      <View
-        style={{
-          paddingHorizontal: 15,
-          paddingBottom: 15,
-          backgroundColor: '#fff',
-        }}>
-        <View style={styles.rowsBetween}>
-          <Text style={styles.titleList}>ID#{ido}</Text>
-          <Text style={{fontSize: 14, fontWeight: 'bold'}}>
-            {moment(created_at).format('DD/MM/YYYY')}
-          </Text>
-        </View>
-        <Divider style={styles.divider} />
-        <Text style={[styles.textLabel, {marginBottom: 10, fontSize: 15}]}>
-          Barang Laundry
-        </Text>
-        <ListOptions
-          options={this.listViewBarang()}
-          containerStyle={{
-            paddingVertical: 10,
-            borderRadius: 0,
-            paddingHorizontal: 0,
-            borderTopWidth: 0.5,
-            borderTopColor: '#e2e2e2',
-          }}
-        />
-        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-        <View style={styles.rowsBetween}>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>Total</Text>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>
-            Rp{total.toString().formatNumber()}
-          </Text>
-        </View>
-        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-        <View style={styles.rowsBetween}>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>Tunai</Text>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>
-            Rp{pembayaran.toString().formatNumber()}
-          </Text>
-        </View>
-        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-        <View style={styles.rowsBetween}>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>Belum Dibayar</Text>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>
-            Rp
-            {(parseFloat(total) - parseFloat(pembayaran))
-              .toString()
-              .formatNumber()}
-          </Text>
-        </View>
-        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-        <View
-          style={{
-            flexDirection: 'row',
-            marginVertical: 10,
-            backgroundColor: 'rgba(0,183,255,0.4)',
-            borderRadius: 10,
-            paddingVertical: 7,
-            paddingHorizontal: 10,
-          }}>
-          <MaterialCommunityIcons
-            name={'information'}
-            size={24}
-            color={theme.colors.primary}
-            style={{alignSelf: 'center'}}
-          />
-          <Text style={{fontSize: 12, marginLeft: 8, marginRight: 16}}>
-            Waktu selesai laundry yang tertera pada pembayaran di atas merupakan
-            estimasi waktu tercepat laundry akan kami selesaikan.
-          </Text>
-        </View>
-        <View style={{marginVertical: 10}}>
-          <Text style={styles.textLabel}>Waktu Jemput</Text>
-          <Text style={styles.subtitleList}>
-            {moment(detail.tglJemput).format('DD MMMM YYYY')} (
-            {detail.waktuJemput.label} {detail.waktuJemput.mulai} -{' '}
-            {detail.waktuJemput.berakhir})
-          </Text>
-        </View>
-        <View style={{marginVertical: 10}}>
-          <Text style={styles.textLabel}>Nomor Ponsel</Text>
-          <Text style={styles.subtitleList}>{detail.noHp}</Text>
-        </View>
-        <View style={{marginVertical: 10}}>
-          <Text style={styles.textLabel}>Alamat</Text>
-          <Text style={styles.subtitleList}>{detail.alamat}</Text>
-        </View>
-        <View style={{marginVertical: 10}}>
-          <Text style={styles.textLabel}>Catatan</Text>
-          <Text style={styles.subtitleList}>{detail.catatan}</Text>
-        </View>
-        <View style={{marginVertical: 15}}>
-          <Button
-            title={'Batalkan'}
-            type={'outline'}
-            disabled={!JSON.stringify(['1']).includes(status)}
-            buttonStyle={{borderColor: theme.colors.accent}}
-            titleStyle={{color: theme.colors.accent}}
-            onPress={() => {
-              this.setState({
-                alertVisible: true,
-                batalID: ido,
-                possitiveBtn: () => {
-                  this.btnBatalkan();
-                  this.setState({alertVisible: false});
-                },
-              });
-            }}
-          />
-        </View>
-      </View>
-    );
-  }
-
-  btnBatalkan() {
-    const oldPesan = this.state.pesanDialog;
-    this.setState({
-      pesanDialog: 'Sedang Membatalkan Orderan Anda',
-    });
-    RestApi.post('/order/batalkan', {id: this.state.batalID})
-      .then(response => {
-        this.setState({batalID: null, pesanDialog: oldPesan, openBs: false});
-        this.bs.current.snapTo(2);
-        this.loadingData();
-      })
-      .catch(e => {
-        this.setState({batalID: null, openBs: false});
-        console.log('errorRespon', e);
-      });
-  }
-
-  renderContent = () => (
-    <View
-      onLayout={event => {
-        let h = event.nativeEvent.layout.height + 30;
-        if (h >= this.screenHeight) {
-          this.setState({
-            bsMaxHeight: this.screenHeight,
-            bsMidHeight: this.screenHeight / 2,
-          });
-        } else {
-          this.setState({bsMidHeight: h});
-        }
-      }}>
-      {this.state.selectedTransaksi && this.content()}
-    </View>
-  );
-
-  renderHeader = () => (
-    <View style={styles.header}>
-      <View style={styles.panelHeader}>
-        <View style={styles.panelHandle} />
-      </View>
-    </View>
-  );
 
   getStatusColor(label) {
     let status = {
@@ -581,8 +194,8 @@ class ProgressScreen extends React.PureComponent {
   }
 
   render() {
-    console.info('#render : ', 'HistoryScreen.js');
-    const {listData, bsMaxHeight, bsMidHeight, errorLoadingData} = this.state;
+    console.info('#render : ', 'ProgressScreen.js');
+    const {listData, errorLoadingData} = this.state;
     return (
       <View
         onLayout={event => {
@@ -642,7 +255,7 @@ class ProgressScreen extends React.PureComponent {
                 <Text style={{textAlign: 'center', color: '#b9b9b9'}}>
                   {errorLoadingData
                     ? 'Sepertinya ada masalah jaringan, coba periksa jaringan atau paket data kamu'
-                    : 'Kamu belum pernah pesan laundry jadi belum ada riwayat pesanan disini, ayo laundry sekarang!'}
+                    : 'Sepertinya tidak ada barang yang sedang anda laundry, ayo laundry sekarang!'}
                 </Text>
               </View>
             ) : (
@@ -657,13 +270,16 @@ class ProgressScreen extends React.PureComponent {
                   );
                 });
 
-                let tmpTotalLaundry = totalLaundry;
                 totalLaundry = totalLaundry.toString().formatNumber();
                 return (
                   <ListItem
                     key={i}
                     underlayColor={'rgba(0,0,0,0.14)'}
-                    onPress={() => this.showBottomSheet(i, tmpTotalLaundry)}
+                    onPress={() =>
+                      this.props.navigation.navigate('DetailOrderScreen', {
+                        id: list.ido,
+                      })
+                    }
                     title={null}
                     // titleStyle={[styles.titleList, {fontSize: 13, color: 'grey'}]}
                     subtitle={
@@ -705,53 +321,6 @@ class ProgressScreen extends React.PureComponent {
             )}
           </FlatContainer>
         </View>
-        <AlertDialog
-          dismissable={true}
-          onDismiss={() => {
-            this.setState({alertVisible: false});
-          }}
-          visible={this.state.alertVisible}
-          title="Pesan"
-          btnLeft={{
-            title: 'Tidak',
-            onPress: () => {
-              this.setState({alertVisible: false});
-            },
-          }}
-          btnRight={{
-            title: 'Ya',
-            onPress: this.state.possitiveBtn,
-          }}>
-          <Text>{this.state.pesanDialog}</Text>
-        </AlertDialog>
-
-        <BottomSheet
-          ref={this.bs}
-          snapPoints={[bsMaxHeight, bsMidHeight, 0]}
-          renderContent={this.renderContent}
-          renderHeader={this.renderHeader}
-          initialSnap={2}
-          onCloseEnd={() => {
-            if (this.state.openBs) {
-              this.setState({openBs: false});
-            }
-          }}
-        />
-        {this.state.openBs ? (
-          <TouchableOpacity
-            onPress={() => {
-              this.bs.current.snapTo(2);
-              this.setState({openBs: false});
-            }}
-            style={{
-              position: 'absolute',
-              backgroundColor: 'rgba(0,0,0,0.27)',
-              height: '100%',
-              width: '100%',
-              zIndex: 1,
-            }}
-          />
-        ) : null}
       </View>
     );
   }
