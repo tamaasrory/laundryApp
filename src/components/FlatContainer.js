@@ -18,6 +18,7 @@ const FlatContainer = ({children, style, ...props}) => {
 
   return (
     <ScrollView
+      nestedScrollEnabled={props.nested}
       contentContainerStyle={styles.scrollView}
       onLayout={event =>
         props.onLayout ? props.onLayout(event.nativeEvent.layout) : {}
