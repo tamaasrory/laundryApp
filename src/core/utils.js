@@ -12,8 +12,20 @@ export const emailValidator = email => {
 };
 
 export const passwordValidator = password => {
+  var passRegex = new RegExp(
+    '^(((?=.*[a-z])|(?=.*[A-Z]))(?=.*[0-9]))(?=.{6,})',
+  );
+
   if (!password || password.length <= 0) {
     return 'Tidak boleh kosong.';
+  }
+
+  if (password.length < 6) {
+    return 'Password Minimal 6 Karakter.';
+  }
+
+  if (!passRegex.test(password)) {
+    return 'Password Harus Kombinasi Angka dan Huruf';
   }
 
   return '';
@@ -28,7 +40,7 @@ export const nameValidator = name => {
 };
 
 export const noHpValidator = name => {
-  if (!name || name.length <= 0) {
+  if (!name || name.length <= 2) {
     return 'Tidak boleh kosong.';
   }
 
