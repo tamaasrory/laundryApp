@@ -1,5 +1,11 @@
 import React, {memo, useState} from 'react';
-import {StatusBar, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import CenterContainer from '../components/CenterContainer';
 import Logo from '../components/Logo';
 import Button from '../components/Button';
@@ -70,6 +76,11 @@ const LoginScreen = ({navigation}) => {
         console.log('loginRespon', e);
       });
   };
+
+  function checkValidation() {
+    return !(email.value && password.value);
+  }
+
   console.info('#render : ', 'LoginScreen.js');
 
   return (
@@ -84,14 +95,18 @@ const LoginScreen = ({navigation}) => {
           style={{
             flexDirection: 'row',
             marginHorizontal: 15,
+            paddingHorizontal: 10,
+            paddingVertical: 7,
+            borderRadius: 7,
+            backgroundColor: 'rgba(241,58,89,0.23)',
           }}>
           <MaterialCommunityIcons
             name={'information'}
-            size={20}
+            size={24}
             color={theme.colors.accent}
-            style={{marginRight: '2%'}}
+            style={{marginRight: 8, alignSelf: 'center'}}
           />
-          <Text style={{color: theme.colors.accent}}>
+          <Text style={{color: theme.colors.accent, fontSize: 12}}>
             Email atau password salah, silahkan periksa kembali
           </Text>
         </View>
@@ -101,7 +116,8 @@ const LoginScreen = ({navigation}) => {
         returnKeyType="next"
         value={email.value}
         onChangeText={text => {
-          setEmail({value: text, error: ''});
+          const emailError = emailValidator(text);
+          setEmail({value: text, error: emailError ? emailError : ''});
           setErrorLogin({value: false});
         }}
         error={!!email.error}
@@ -116,8 +132,10 @@ const LoginScreen = ({navigation}) => {
         label="Password"
         returnKeyType="done"
         value={password.value}
+        maxLength={8}
         onChangeText={text => {
-          setPassword({value: text, error: ''});
+          const passError = passwordValidator(text);
+          setPassword({value: text, error: passError ? passError : ''});
           setErrorLogin({value: false});
         }}
         error={!!password.error}
@@ -125,14 +143,14 @@ const LoginScreen = ({navigation}) => {
         secureTextEntry
       />
 
-      <View style={styles.forgotPassword}>
+      {/*      <View style={styles.forgotPassword}>
         <TouchableOpacity
           style={{flexDirection: 'row'}}
           onPress={() => navigation.navigate('ForgotPasswordScreen')}>
           <Text style={styles.label}>Lupa password ? </Text>
           <Text style={{color: 'green'}}>Klik Disini</Text>
         </TouchableOpacity>
-      </View>
+      </View>*/}
 
       {loginProcess.value ? (
         <ProgressBar
@@ -141,7 +159,10 @@ const LoginScreen = ({navigation}) => {
           color={theme.colors.primary}
         />
       ) : (
-        <Button mode="contained" onPress={_onLoginPressed}>
+        <Button
+          mode="contained"
+          onPress={_onLoginPressed}
+          disabled={checkValidation()}>
           Login
         </Button>
       )}
@@ -164,6 +185,7 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: 4,
   },
   label: {

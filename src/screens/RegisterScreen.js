@@ -23,19 +23,21 @@ const RegisterScreen = ({navigation}) => {
   const [errorLogin, setErrorLogin] = useState({value: false});
   const [loginProcess, setLoginProcess] = useState({value: false});
 
+  function checkValidation() {
+    return !!(
+      name.error ||
+      email.error ||
+      noHp.error ||
+      password.error ||
+      !(name.value && email.value && noHp.value && password.value)
+    );
+  }
+
   const _onSignUpPressed = () => {
     setErrorLogin({value: false});
     setLoginProcess({value: true});
-    const nameError = nameValidator(name.value);
-    const emailError = emailValidator(email.value);
-    const noHpError = noHpValidator(noHp.value);
-    const passwordError = passwordValidator(password.value);
 
-    if (emailError || passwordError || nameError || noHpError) {
-      setName({...name, error: nameError});
-      setEmail({...email, error: emailError});
-      setNoHp({...noHp, error: noHpError});
-      setPassword({...password, error: passwordError});
+    if (name.error || email.error || noHp.error || password.error) {
       setLoginProcess({value: false});
     } else {
       RestApi.post('/user/baru', {
@@ -56,7 +58,9 @@ const RegisterScreen = ({navigation}) => {
         });
     }
   };
+
   console.info('#render : ', 'RegisterScreen.js');
+
   return (
     <View style={{backgroundColor: '#fff', flexGrow: 1}}>
       <StatusBar
@@ -95,92 +99,126 @@ const RegisterScreen = ({navigation}) => {
         </View>
       </View>
 
-      <View style={{flex: 1, height: 100}}>
-        <FlatContainer style={{paddingHorizontal: 25, paddingTop: 10}}>
+      <View style={{flex: 1}}>
+        <FlatContainer
+          nested={true}
+          style={{paddingHorizontal: 25, paddingTop: 10}}>
           {errorLogin.value ? (
             <View
               style={{
                 flexDirection: 'row',
-                marginHorizontal: 15,
+                paddingHorizontal: 10,
+                marginVertical: 10,
+                paddingVertical: 7,
+                borderRadius: 7,
+                backgroundColor: 'rgba(241,58,89,0.23)',
               }}>
               <MaterialCommunityIcons
                 name={'information'}
-                size={20}
+                size={24}
                 color={theme.colors.accent}
-                style={{marginRight: '2%'}}
+                style={{alignSelf: 'center'}}
               />
-              <Text style={{color: theme.colors.accent}}>
+              <Text
+                style={{
+                  color: theme.colors.accent,
+                  fontSize: 12,
+                  marginHorizontal: 10,
+                }}>
                 Email sudah pernah digunakan, silahkan login atau periksa
-                kembali email anda
+                kembali email anda!
               </Text>
             </View>
           ) : null}
-          <TextInput
-            label="Nama"
-            returnKeyType="next"
-            value={name.value}
-            onChangeText={text => setName({value: text, error: ''})}
-            error={!!name.error}
-            errorText={name.error}
-          />
-
-          <TextInput
-            label="Email"
-            returnKeyType="next"
-            value={email.value}
-            onChangeText={text => {
-              setEmail({value: text, error: ''});
-              setErrorLogin({value: false});
-            }}
-            error={!!email.error}
-            errorText={email.error}
-            autoCapitalize="none"
-            autoCompleteType="email"
-            textContentType="emailAddress"
-            keyboardType="email-address"
-          />
-
-          <TextInput
-            label="Password"
-            returnKeyType="done"
-            value={password.value}
-            onChangeText={text => setPassword({value: text, error: ''})}
-            error={!!password.error}
-            errorText={password.error}
-            secureTextEntry
-          />
-
-          <TextInput
-            label="Nomor Ponsel"
-            returnKeyType="next"
-            value={noHp.value}
-            onChangeText={text => setNoHp({value: text, error: ''})}
-            error={!!noHp.error}
-            errorText={noHp.error}
-            autoCapitalize="none"
-          />
-
-          {loginProcess.value ? (
-            <ProgressBar
-              style={{width: '100%'}}
-              styleAttr="Horizontal"
-              color={theme.colors.primary}
+          <View style={{zIndex: 1000, backgroundColor: '#fff'}}>
+            <TextInput
+              label="Nama"
+              returnKeyType="next"
+              value={name.value}
+              onChangeText={text => {
+                const namaError = nameValidator(text);
+                setName({value: text, error: namaError ? namaError : ''});
+              }}
+              error={!!name.error}
+              errorText={name.error}
             />
-          ) : (
-            <Button
-              type={'solid'}
-              title={'DAFTAR'}
-              buttonStyle={styles1.button}
-              onPress={_onSignUpPressed}
-            />
-          )}
 
-          <View style={styles1.row}>
-            <Text style={styles1.label}>Sudah punya akun? </Text>
-            <TouchableOpacity
-              onPress={() => navigation.navigate('LoginScreen')}>
-              <Text style={styles1.link}>Login Sekarang</Text>
-            </TouchableOpacity>
+            <TextInput
+              label="Email"
+              returnKeyType="next"
+              value={email.value}
+              onChangeText={text => {
+                const emailError = emailValidator(text);
+                setEmail({value: text, error: emailError ? emailError : ''});
+              }}
+              error={!!email.error}
+              errorText={email.error}
+              autoCapitalize="none"
+              autoCompleteType="email"
+              textContentType="emailAddress"
+              keyboardType="email-address"
+            />
+
+            <TextInput
+              label="Password"
+              returnKeyType="done"
+              value={password.value}
+              onChangeText={text => {
+                const passError = passwordValidator(text);
+                setPassword({value: text, error: passError ? passError : ''});
+              }}
+              error={!!password.error}
+              errorText={password.error}
+              maxLength={8}
+              secureTextEntry
+            />
+
+            <TextInput
+              label="Nomor Ponsel"
+              returnKeyType="next"
+              keyboardType={'number-pad'}
+              value={noHp.value}
+              onChangeText={text => {
+                const noHpError = noHpValidator(text);
+                setNoHp({value: text, error: noHpError ? noHpError : ''});
+              }}
+              error={!!noHp.error}
+              errorText={noHp.error}
+              autoCapitalize="none"
+            />
+          </View>
+          <View
+            style={{
+              alignSelf: 'center',
+              marginBottom: 25,
+              position: 'absolute',
+              bottom: 0,
+              width: '100%',
+              zIndex: 100,
+            }}>
+            {loginProcess.value ? (
+              <ProgressBar
+                style={{width: '100%'}}
+                styleAttr="Horizontal"
+                color={theme.colors.primary}
+              />
+            ) : (
+              <Button
+                type={'solid'}
+                title={'DAFTAR'}
+                disabled={checkValidation()}
+                buttonStyle={styles1.button}
+                onPress={_onSignUpPressed}
+              />
+            )}
+
+            <View style={styles1.row}>
+              <Text style={styles1.label}>Sudah punya akun? </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('LoginScreen')}>
+                <Text style={styles1.link}>Login Sekarang</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </FlatContainer>
       </View>
@@ -199,6 +237,7 @@ const styles1 = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
+    alignSelf: 'center',
     marginTop: 4,
   },
   link: {
