@@ -1,7 +1,7 @@
 /**
  * @flow
  */
-import React from 'react';
+import React, {createRef} from 'react';
 import RestApi from '../router/Api';
 import {ActivityIndicator, StatusBar, View} from 'react-native';
 import styles from '../components/Styles';
@@ -13,6 +13,7 @@ import {theme} from '../core/theme';
 import AlertDialog from '../components/AlertDialog';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 import FlatContainer from '../components/FlatContainer';
+import ViewShot from 'react-native-view-shot';
 
 class DetailOrderScreen extends React.PureComponent {
   state = {
@@ -471,6 +472,15 @@ class DetailOrderScreen extends React.PureComponent {
     ];
     return status[key - 1];
   }
+
+  viewShot = createRef();
+
+  captureInvoice() {
+    this.viewShot.capture().then(uri => {
+      console.log('do something with ', uri);
+    });
+  }
+
   render() {
     let {ido, created_at, detail, status, pembayaran} = this.state.transaksi;
 
@@ -481,121 +491,125 @@ class DetailOrderScreen extends React.PureComponent {
           padding: 15,
           backgroundColor: '#fff',
         }}>
-        <StatusBar
-          backgroundColor={theme.colors.white}
-          barStyle={'dark-content'}
-        />
-        {this.state.isLoading ? (
-          this._renderShimmerList(7)
-        ) : ido ? (
-          <View>
-            <View style={styles.rowsBetween}>
-              <Text style={{color: theme.colors.backdrop}}>ID#{ido}</Text>
-              <Text style={{color: theme.colors.backdrop}}>
-                {moment(created_at).format('DD/MM/YYYY')}
+        <ViewShot ref={this.viewShot} onCapture={this.onCapture}>
+          <StatusBar
+            backgroundColor={theme.colors.white}
+            barStyle={'dark-content'}
+          />
+          {this.state.isLoading ? (
+            this._renderShimmerList(7)
+          ) : ido ? (
+            <View>
+              <View style={styles.rowsBetween}>
+                <Text style={{color: theme.colors.backdrop}}>ID#{ido}</Text>
+                <Text style={{color: theme.colors.backdrop}}>
+                  {moment(created_at).format('DD/MM/YYYY')}
+                </Text>
+              </View>
+              <Divider style={styles.divider} />
+              <Text
+                style={[styles.textLabel, {marginBottom: 10, fontSize: 15}]}>
+                Barang Laundry
               </Text>
-            </View>
-            <Divider style={styles.divider} />
-            <Text style={[styles.textLabel, {marginBottom: 10, fontSize: 15}]}>
-              Barang Laundry
-            </Text>
-            <ListOptions
-              options={this.listViewBarang()}
-              containerStyle={{
-                paddingHorizontal: 0,
-                paddingVertical: 10,
-                borderTopWidth: 0.5,
-                borderTopColor: '#e2e2e2',
-              }}
-            />
-            <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-            <View style={styles.rowsBetween}>
-              <Text style={[styles.textLabel, {fontSize: 15}]}>Total</Text>
-              <Text style={[styles.textLabel, {fontSize: 15}]}>
-                Rp{this.state.total?.toString().formatNumber()}
-              </Text>
-            </View>
-            <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-            <View style={styles.rowsBetween}>
-              <Text style={[styles.textLabel, {fontSize: 15}]}>Tunai</Text>
-              <Text style={[styles.textLabel, {fontSize: 15}]}>
-                Rp{pembayaran?.toString().formatNumber()}
-              </Text>
-            </View>
-            <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-            <View style={styles.rowsBetween}>
-              <Text style={[styles.textLabel, {fontSize: 15}]}>
-                Belum Dibayar
-              </Text>
-              <Text style={[styles.textLabel, {fontSize: 15}]}>
-                Rp
-                {(parseFloat(this.state.total) - parseFloat(pembayaran))
-                  .toString()
-                  .formatNumber()}
-              </Text>
-            </View>
-            <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-            <View
-              style={{
-                flexDirection: 'row',
-                marginVertical: 10,
-                backgroundColor: 'rgba(0,183,255,0.4)',
-                borderRadius: 10,
-                paddingVertical: 7,
-                paddingHorizontal: 10,
-              }}>
-              <MaterialCommunityIcons
-                name={'information'}
-                size={24}
-                color={theme.colors.primary}
-                style={{alignSelf: 'center'}}
-              />
-              <Text style={{fontSize: 12, marginLeft: 8, marginRight: 16}}>
-                Waktu selesai laundry yang tertera pada pembayaran di atas
-                merupakan estimasi waktu tercepat laundry akan kami selesaikan.
-              </Text>
-            </View>
-            <View style={{marginVertical: 10}}>
-              <Text style={styles.textLabel}>Waktu Jemput</Text>
-              <Text style={styles.subtitleList}>
-                {moment(detail.tglJemput).format('DD MMMM YYYY')} (
-                {detail.waktuJemput.label} {detail.waktuJemput.mulai} -{' '}
-                {detail.waktuJemput.berakhir})
-              </Text>
-            </View>
-            <View style={{marginVertical: 10}}>
-              <Text style={styles.textLabel}>Nomor Ponsel</Text>
-              <Text style={styles.subtitleList}>{detail.noHp}</Text>
-            </View>
-            <View style={{marginVertical: 10}}>
-              <Text style={styles.textLabel}>Alamat</Text>
-              <Text style={styles.subtitleList}>{detail.alamat}</Text>
-            </View>
-            <View style={{marginVertical: 10}}>
-              <Text style={styles.textLabel}>Catatan</Text>
-              <Text style={styles.subtitleList}>{detail.catatan}</Text>
-            </View>
-            <View style={{marginVertical: 15}}>
-              <Button
-                title={'Batalkan'}
-                type={'outline'}
-                disabled={!JSON.stringify(['1']).includes(status)}
-                buttonStyle={{borderColor: theme.colors.accent}}
-                titleStyle={{color: theme.colors.accent}}
-                onPress={() => {
-                  this.setState({
-                    alertVisible: true,
-                    batalID: ido,
-                    possitiveBtn: () => {
-                      this.btnBatalkan();
-                      this.setState({alertVisible: false});
-                    },
-                  });
+              <ListOptions
+                options={this.listViewBarang()}
+                containerStyle={{
+                  paddingHorizontal: 0,
+                  paddingVertical: 10,
+                  borderTopWidth: 0.5,
+                  borderTopColor: '#e2e2e2',
                 }}
               />
+              <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+              <View style={styles.rowsBetween}>
+                <Text style={[styles.textLabel, {fontSize: 15}]}>Total</Text>
+                <Text style={[styles.textLabel, {fontSize: 15}]}>
+                  Rp{this.state.total?.toString().formatNumber()}
+                </Text>
+              </View>
+              <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+              <View style={styles.rowsBetween}>
+                <Text style={[styles.textLabel, {fontSize: 15}]}>Tunai</Text>
+                <Text style={[styles.textLabel, {fontSize: 15}]}>
+                  Rp{pembayaran?.toString().formatNumber()}
+                </Text>
+              </View>
+              <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+              <View style={styles.rowsBetween}>
+                <Text style={[styles.textLabel, {fontSize: 15}]}>
+                  Belum Dibayar
+                </Text>
+                <Text style={[styles.textLabel, {fontSize: 15}]}>
+                  Rp
+                  {(parseFloat(this.state.total) - parseFloat(pembayaran))
+                    .toString()
+                    .formatNumber()}
+                </Text>
+              </View>
+              <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  marginVertical: 10,
+                  backgroundColor: 'rgba(0,183,255,0.4)',
+                  borderRadius: 10,
+                  paddingVertical: 7,
+                  paddingHorizontal: 10,
+                }}>
+                <MaterialCommunityIcons
+                  name={'information'}
+                  size={24}
+                  color={theme.colors.primary}
+                  style={{alignSelf: 'center'}}
+                />
+                <Text style={{fontSize: 12, marginLeft: 8, marginRight: 16}}>
+                  Waktu selesai laundry yang tertera pada pembayaran di atas
+                  merupakan estimasi waktu tercepat laundry akan kami
+                  selesaikan.
+                </Text>
+              </View>
+              <View style={{marginVertical: 10}}>
+                <Text style={styles.textLabel}>Waktu Jemput</Text>
+                <Text style={styles.subtitleList}>
+                  {moment(detail.tglJemput).format('DD MMMM YYYY')} (
+                  {detail.waktuJemput.label} {detail.waktuJemput.mulai} -{' '}
+                  {detail.waktuJemput.berakhir})
+                </Text>
+              </View>
+              <View style={{marginVertical: 10}}>
+                <Text style={styles.textLabel}>Nomor Ponsel</Text>
+                <Text style={styles.subtitleList}>{detail.noHp}</Text>
+              </View>
+              <View style={{marginVertical: 10}}>
+                <Text style={styles.textLabel}>Alamat</Text>
+                <Text style={styles.subtitleList}>{detail.alamat}</Text>
+              </View>
+              <View style={{marginVertical: 10}}>
+                <Text style={styles.textLabel}>Catatan</Text>
+                <Text style={styles.subtitleList}>{detail.catatan}</Text>
+              </View>
+              <View style={{marginVertical: 15}}>
+                <Button
+                  title={'Batalkan'}
+                  type={'outline'}
+                  disabled={!JSON.stringify(['1']).includes(status)}
+                  buttonStyle={{borderColor: theme.colors.accent}}
+                  titleStyle={{color: theme.colors.accent}}
+                  onPress={() => {
+                    this.setState({
+                      alertVisible: true,
+                      batalID: ido,
+                      possitiveBtn: () => {
+                        this.btnBatalkan();
+                        this.setState({alertVisible: false});
+                      },
+                    });
+                  }}
+                />
+              </View>
             </View>
-          </View>
-        ) : null}
+          ) : null}
+        </ViewShot>
         <AlertDialog
           dismissable={true}
           onDismiss={() => {
