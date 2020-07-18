@@ -12,7 +12,7 @@ RestApi.interceptors.request.use(
     let value = await SInfo.getItem('token', {});
     if (value) {
       config.headers.Authorization = `Bearer ${value}`;
-      // config.timeout = 60000;
+      config.timeout = 30000;
       // config.timeoutErrorMessage = 'time outttt';
       // console.log('token on request = ' + value);
     }
