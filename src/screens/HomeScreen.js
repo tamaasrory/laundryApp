@@ -5,12 +5,20 @@ import React from 'react';
 import {ListItem, Text} from 'react-native-elements';
 import FlatContainer from '../components/FlatContainer';
 import Carousel, {ParallaxImage} from 'react-native-snap-carousel';
-import {Dimensions, Platform, StatusBar, StyleSheet, TouchableHighlight, View} from 'react-native';
+import {
+  Dimensions,
+  Platform,
+  StatusBar,
+  StyleSheet,
+  TouchableHighlight,
+  View,
+} from 'react-native';
 import User from '../store/User';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {theme} from '../core/theme';
 import RestApi from '../router/Api';
 import Path from '../router/Path';
+import moment from 'moment';
 
 const {width: screenWidth} = Dimensions.get('window');
 const itemWidth = screenWidth;
@@ -81,7 +89,9 @@ class HomeScreen extends React.PureComponent {
             this.state.errorLoadingData
               ? require('../assets/image404.svg')
               : {
-                  uri: `${Path.BannerImage}/${item.image}`,
+                  uri: `${Path.BannerImage}/${item.image}?q=${moment().format(
+                    'YYYYMMDDHHiiss',
+                  )}`,
                 }
           }
           containerStyle={style.carousel_image_container}
