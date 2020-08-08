@@ -78,7 +78,12 @@ const LoginScreen = ({navigation}) => {
   };
 
   function checkValidation() {
-    return !(email.value && password.value);
+    return !(
+      email.value &&
+      password.value &&
+      password.error === '' &&
+      email.error === ''
+    );
   }
 
   console.info('#render : ', 'LoginScreen.js');
