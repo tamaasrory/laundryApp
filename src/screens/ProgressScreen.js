@@ -114,6 +114,7 @@ class ProgressScreen extends React.PureComponent {
       'Sedang Diantar': '#ff8e00', // Sedang Diantar
       'Telah Diterima': '#00aa2f', // Telah Diterima
       'Telah Dijemput': '#00aa2f', // Telah Diterima
+      'Telah Diantar': '#00aa2f', // Telah Diterima
     };
     return status[label];
   }
@@ -128,6 +129,7 @@ class ProgressScreen extends React.PureComponent {
       'Sedang Diantar',
       'Telah Diterima',
       'Telah Dijemput',
+      'Telah Diantar',
     ];
     return status[key - 1];
   }
@@ -142,6 +144,7 @@ class ProgressScreen extends React.PureComponent {
       '#ff8e00', // Sedang Diantar
       '#00aa2f', // Telah Diterima
       '#00aa2f', // Telah Dijemput
+      '#00aa2f', // Telah Diantar
     ];
     return status[key - 1];
   }
@@ -266,7 +269,7 @@ class ProgressScreen extends React.PureComponent {
                     d,
                     d.selectedKategori,
                     d.jumlah,
-                    list.detail.isMember,
+                    parseInt(list.detail.isMember),
                   );
                 });
 

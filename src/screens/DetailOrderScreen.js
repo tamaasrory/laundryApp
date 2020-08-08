@@ -21,6 +21,7 @@ class DetailOrderScreen extends React.PureComponent {
     total: 0,
     isLoading: true,
     errorLoadingData: false,
+    pesanDialog: 'Yakin Batalkan Laundry ?',
   };
 
   constructor(props) {
@@ -59,7 +60,10 @@ class DetailOrderScreen extends React.PureComponent {
     RestApi.post('/order/batalkan', {id: this.state.batalID})
       .then(response => {
         this.setState({batalID: null, pesanDialog: oldPesan, openBs: false});
-        this.loadingData();
+        this.props.navigation.reset({
+          index: 1,
+          routes: [{name: 'HistoryScreen'}],
+        });
       })
       .catch(e => {
         this.setState({batalID: null, openBs: false});
@@ -240,12 +244,18 @@ class DetailOrderScreen extends React.PureComponent {
     }
     return total;
   }
-
+  diskonCounter(diskon, harga, jp) {
+    const disc = this.formatDiskon(diskon);
+    if (disc !== 0) {
+      return harga * (disc / 100) * jp;
+    }
+    return 0;
+  }
   listViewBarang() {
     let total = 0;
     // console.log(JSON.stringify(detail));
     const {detail} = this.state.transaksi;
-    console.log('re render');
+    // console.log('re render');
     let kategori = [];
     detail.barang.map(d => {
       let selectedKat = d.selectedKategori;
@@ -255,7 +265,7 @@ class DetailOrderScreen extends React.PureComponent {
         detail.diskon,
         selectedKat,
         d.jumlah,
-        detail.isMember,
+        parseInt(detail.isMember),
       );
       kategori.push({
         key: d.idk,
@@ -334,7 +344,7 @@ class DetailOrderScreen extends React.PureComponent {
                   color: theme.colors.accent,
                   fontSize: 12,
                 },
-                detail.isMember,
+                parseInt(detail.isMember),
               )}
               {d.detail.diskonStatus && selectedKat.diskonStatus ? (
                 <Text style={{color: theme.colors.accent, fontSize: 12}}>
@@ -349,7 +359,7 @@ class DetailOrderScreen extends React.PureComponent {
                   color: theme.colors.accent,
                   fontSize: 12,
                 },
-                detail.isMember,
+                parseInt(detail.isMember),
               )}
             </View>
             <Text style={[styles.subtitleList, {textAlign: 'right'}]}>
@@ -441,6 +451,7 @@ class DetailOrderScreen extends React.PureComponent {
       'Sedang Diantar': '#ff8e00', // Sedang Diantar
       'Telah Diterima': '#00aa2f', // Telah Diterima
       'Telah Dijemput': '#00aa2f', // Telah Diterima
+      'Telah Diantar': '#00aa2f', // Telah Diterima
     };
     return status[label];
   }
@@ -562,7 +573,7 @@ class DetailOrderScreen extends React.PureComponent {
                   color={theme.colors.primary}
                   style={{alignSelf: 'center'}}
                 />
-                <Text style={{fontSize: 12, marginLeft: 8, marginRight: 16}}>
+                <Text style={{fontSize: 12, paddingHorizontal: 8}}>
                   Waktu selesai laundry yang tertera pada pembayaran di atas
                   merupakan estimasi waktu tercepat laundry akan kami
                   selesaikan.
