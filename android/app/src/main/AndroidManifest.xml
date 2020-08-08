@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.laundryapp">
+          package="com.tajriy.ethanlaundry">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -27,7 +27,7 @@
         <!-- You will only need to add this meta-data tag, but make sure it's a child of application -->
         <meta-data
                 android:name="com.google.android.geo.API_KEY"
-                android:value="AIzaSyB83sdVgavrUO_8E53xabPuEd6YedrUbaI"/>
+                android:value="AIzaSyDU7RbFTBmmzZBCTXrHEZw8SZKu9witp5s"/>
 
         <!-- You will also only need to add this uses-libray tag -->
         <uses-library android:name="org.apache.http.legacy" android:required="false"/>

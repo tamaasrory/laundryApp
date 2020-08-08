@@ -1,4 +1,4 @@
-package com.laundryapp;
+package com.tajriy.ethanlaundry;
 
 import android.app.Application;
 import android.content.Context;

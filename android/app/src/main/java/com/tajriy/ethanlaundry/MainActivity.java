@@ -1,4 +1,4 @@
-package com.laundryapp;
+package com.tajriy.ethanlaundry;
 
 import com.facebook.react.ReactActivity;
 
