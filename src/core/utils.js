@@ -31,6 +31,30 @@ export const passwordValidator = password => {
   return '';
 };
 
+export const retypePasswordValidator = (password, compare) => {
+  var passRegex = new RegExp(
+    '^(((?=.*[a-z])|(?=.*[A-Z]))(?=.*[0-9]))(?=.{6,})',
+  );
+
+  if (!password || password.length <= 0) {
+    return 'Tidak boleh kosong.';
+  }
+
+  if (password.length < 6) {
+    return 'Password Minimal 6 Karakter.';
+  }
+
+  if (!passRegex.test(password)) {
+    return 'Password Harus Kombinasi Angka dan Huruf';
+  }
+
+  if (password !== compare) {
+    return 'Password Tidak Cocok, Periksa Ulang';
+  }
+
+  return '';
+};
+
 export const nameValidator = name => {
   if (!name || name.length <= 0) {
     return 'Tidak boleh kosong.';
