@@ -7,6 +7,7 @@ import {
   nameValidator,
   noHpValidator,
   passwordValidator,
+  retypePasswordValidator,
 } from '../core/utils';
 import RestApi from '../router/Api';
 import {Button, Text} from 'react-native-elements';
@@ -14,12 +15,19 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import {ProgressBar} from '@react-native-community/progress-bar-android';
 import styles from '../components/Styles';
 import FlatContainer from '../components/FlatContainer';
+import AlertDialog from '../components/AlertDialog';
 
 const RegisterScreen = ({navigation}) => {
   const [name, setName] = useState({value: '', error: ''});
+  const [dialog, setDialog] = useState({
+    alertVisible: false,
+    pesanDialog: '',
+    btnRight: false,
+  });
   const [email, setEmail] = useState({value: '', error: ''});
   const [noHp, setNoHp] = useState({value: '', error: ''});
   const [password, setPassword] = useState({value: '', error: ''});
+  const [retypePassword, setRetypePassword] = useState({value: '', error: ''});
   const [errorLogin, setErrorLogin] = useState({value: false});
   const [loginProcess, setLoginProcess] = useState({value: false});
 
@@ -49,11 +57,30 @@ const RegisterScreen = ({navigation}) => {
         .then(response => {
           console.log('loginRespon', response);
           setLoginProcess({value: false});
-          navigation.navigate('LoginScreen');
+          setDialog({
+            alertVisible: true,
+            pesanDialog: 'Registrasi Berhasil, Silahkan Login',
+            btnRight: {
+              title: 'Ya',
+              onPress: () => {
+                navigation.navigate('LoginScreen');
+              },
+            },
+          });
         })
         .catch(e => {
           setLoginProcess({value: false});
           setErrorLogin({value: true});
+          // setDialog({
+          //   alertVisible: true,
+          //   pesanDialog: 'Registrasi Berhasil, Silahkan Login',
+          //   btnRight: {
+          //     title: 'Ya',
+          //     onPress: () => {
+          //       navigation.navigate('LoginScreen');
+          //     },
+          //   },
+          // });
           console.log('loginRespon', e);
         });
     }
@@ -174,6 +201,23 @@ const RegisterScreen = ({navigation}) => {
             />
 
             <TextInput
+              label="Ketik Ulang Password"
+              returnKeyType="done"
+              value={retypePassword.value}
+              onChangeText={text => {
+                const passError = retypePasswordValidator(text, password.value);
+                setRetypePassword({
+                  value: text,
+                  error: passError ? passError : '',
+                });
+              }}
+              error={!!retypePassword.error}
+              errorText={retypePassword.error}
+              maxLength={8}
+              secureTextEntry
+            />
+
+            <TextInput
               label="Nomor Ponsel"
               returnKeyType="next"
               keyboardType={'number-pad'}
@@ -220,6 +264,18 @@ const RegisterScreen = ({navigation}) => {
               </TouchableOpacity>
             </View>
           </View>
+          <AlertDialog
+            dismissable={true}
+            onDismiss={() => setDialog({alertVisible: false})}
+            visible={dialog.alertVisible}
+            title="Pesan"
+            btnLeft={{
+              title: 'Tidak',
+              onPress: () => setDialog({alertVisible: false}),
+            }}
+            btnRight={dialog.btnRight}>
+            <Text>{dialog.pesanDialog}</Text>
+          </AlertDialog>
         </FlatContainer>
       </View>
     </View>
