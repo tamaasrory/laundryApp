@@ -101,11 +101,11 @@ class HomeScreen extends React.PureComponent {
         />
         <View
           style={{
-            height: '40%',
+            height: '33%',
             bottom: 0,
             position: 'absolute',
             width: '100%',
-            //backgroundColor: 'rgba(0,0,0,0.4)',
+            backgroundColor: 'rgba(0,0,0,0.62)',
             paddingVertical: 10,
             paddingHorizontal: 25,
           }}>
@@ -168,7 +168,7 @@ class HomeScreen extends React.PureComponent {
             hasParallaxImages={true}
             loop={true}
             autoplay={true}
-            autoplayInterval={3000}
+            autoplayInterval={6000}
             inactiveSlideScale={1}
           />
         </View>
@@ -220,7 +220,7 @@ class HomeScreen extends React.PureComponent {
             backgroundColor: '#fff',
             position: 'absolute',
             bottom: 0,
-            height: '50%',
+            height: '47%',
             paddingTop: 15,
             width: '100%',
             borderTopRightRadius: 35,
