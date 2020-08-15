@@ -31,6 +31,7 @@ class OrderScreen extends React.PureComponent {
     longitude: null,
     catatan: null,
     selectedRangeWaktu: '',
+    selectedParfum: '',
 
     response: {
       icon: {name: 'check', color: '#36cb04'},
@@ -46,6 +47,7 @@ class OrderScreen extends React.PureComponent {
     errorSendOrder: false,
 
     reangeWaktuJemput: [],
+    parfumList: [],
   };
 
   /** @type LocationStore */
@@ -55,12 +57,43 @@ class OrderScreen extends React.PureComponent {
     super(props);
     this.store = this.props.store;
     this.loadingWaktuJemput();
+    this.loadingParfum();
   }
 
   getCurrentDateTime() {
     return this.date.getHours() >= 17
       ? new Date(new Date().setDate(this.date.getDate() + 1))
       : this.date;
+  }
+
+  loadingParfum() {
+    this.setState({isLoading: true, errorLoadingData: false});
+    RestApi.get('/parfum/all')
+      .then(res => {
+        let customize = res.data.value.map(data => {
+          return {
+            id: data.id,
+            nama: data.nama,
+            gender: data.gender,
+            aroma: data.aroma,
+          };
+        });
+
+        this.setState({
+          parfumList: customize,
+          isLoading: false,
+          errorLoadingData: false,
+        });
+        console.log('res', res);
+      })
+      .catch(err => {
+        console.log('error res', err);
+        this.setState({
+          parfumList: [],
+          isLoading: false,
+          errorLoadingData: true,
+        });
+      });
   }
 
   loadingWaktuJemput() {
@@ -150,6 +183,7 @@ class OrderScreen extends React.PureComponent {
       latitude,
       longitude,
       catatan,
+      selectedParfum,
       selectedRangeWaktu,
     } = this.state;
     if (
@@ -159,6 +193,7 @@ class OrderScreen extends React.PureComponent {
       latitude &&
       longitude &&
       catatan &&
+      selectedParfum &&
       selectedRangeWaktu
     ) {
       return {
@@ -166,6 +201,7 @@ class OrderScreen extends React.PureComponent {
         tglJemput: waktuJemput,
         waktuJemput: selectedRangeWaktu,
         noHp: noHp,
+        parfum: selectedParfum,
         alamat: alamat,
         latitude: latitude,
         longitude: longitude,
@@ -316,7 +352,11 @@ class OrderScreen extends React.PureComponent {
                 marginBottom: 20,
               }}>
               <Picker
-                mode={'dropdown'}
+                mode={'dialog'}
+                enabled={!!waktuJemput}
+                style={{
+                  color: !waktuJemput ? '#c4c4c4' : '#000',
+                }}
                 selectedValue={this.state.selectedRangeWaktu}
                 onValueChange={(value, index) => {
                   const range = this.checkDelivTime(value) ? value : null;
@@ -334,10 +374,47 @@ class OrderScreen extends React.PureComponent {
                 })}
               </Picker>
             </View>
+            <View style={{marginBottom: 5, flexDirection: 'row'}}>
+              <Text style={styles.textLabel}>Parfum</Text>
+              <Text style={[styles.textSecondary, {marginLeft: 5}]}>
+                ( Yang Anda Sukai )
+              </Text>
+            </View>
+            <View
+              style={{
+                borderBottomColor: '#fff',
+                backgroundColor: 'rgba(0,0,0,0.04)',
+                borderRadius: 15,
+                paddingLeft: 5,
+                marginRight: 0,
+                marginTop: 5,
+                marginBottom: 20,
+              }}>
+              <Picker
+                mode={'dialog'}
+                enabled={!this.state.isLoading}
+                selectedValue={this.state.selectedParfum}
+                onValueChange={(value, index) => {
+                  this.setState({selectedParfum: value});
+                }}>
+                <Picker.Item label={'Pilih Parfum'} value={null} />
+                {this.state.parfumList.map(data => {
+                  return (
+                    <Picker.Item
+                      label={`${data.nama} (${data.gender}, ${data.aroma})`}
+                      value={data}
+                    />
+                  );
+                })}
+              </Picker>
+            </View>
 
             <View style={{flexDirection: 'row'}}>
               <Text style={styles.textLabel}>Nomor Ponsel</Text>
-              <Text style={styles.textSecondary}> ( Aktif )</Text>
+              <Text style={styles.textSecondary}>
+                {' '}
+                ( Pastikan nomor aktif )
+              </Text>
             </View>
             <View
               style={{
@@ -485,7 +562,7 @@ class OrderScreen extends React.PureComponent {
                 this.setState({showResponseDialog: false});
                 if (!this.state.errorSendOrder) {
                   this.props.navigation.pop(3);
-                  this.props.navigation.push({});
+                  this.props.navigation.navigate({name: 'ProgressScreen'});
                 }
               }}
             />
