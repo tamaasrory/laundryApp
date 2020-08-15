@@ -64,6 +64,7 @@ const LoginScreen = ({navigation}) => {
         );
 
         setLoginProcess({value: false});
+        setErrorLogin({value: false});
         console.log('loginRespon', response.data);
         navigation.reset({
           index: 0,
