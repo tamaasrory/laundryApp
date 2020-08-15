@@ -4,16 +4,15 @@
 import React from 'react';
 import FlatContainer from '../components/FlatContainer';
 import styles from '../components/Styles';
-import {Button, Divider, ListItem, Text} from 'react-native-elements';
+import {Button, ListItem, Text} from 'react-native-elements';
 import RestApi from '../router/Api';
-import {StatusBar, TouchableOpacity, View} from 'react-native';
+import {StatusBar, View} from 'react-native';
 import {theme} from '../core/theme';
-import BottomSheet from 'reanimated-bottom-sheet';
 import {inject, observer} from 'mobx-react';
-import ListOptions from '../components/ListOptions';
 import moment from '../components/DateFormater';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
+import {Colors} from 'react-native-paper';
 
 @inject('orderStore')
 @observer
@@ -22,11 +21,19 @@ class HistoryScreen extends React.PureComponent {
   bs = React.createRef();
   state = {
     listData: [],
+
     selectedTransaksi: null,
     selectedKategori: null,
+
     bsMaxHeight: 0,
     bsMidHeight: 0,
+    alertVisible: false,
+    pesanDialog: 'Batalkan Order Laundry Sekarang ?',
+    possitiveBtn: () => {},
+    negativeBtn: () => {},
+    batalID: null,
     openBs: false,
+
     isLoading: true,
     errorLoadingData: false,
   };
@@ -51,106 +58,6 @@ class HistoryScreen extends React.PureComponent {
         console.log('error res', err);
         this.setState({listData: [], isLoading: false, errorLoadingData: true});
       });
-  }
-
-  listViewBarang(detail) {
-    // console.log(JSON.stringify(detail));
-    let kategori = [];
-    detail.barang.map(d => {
-      let selectedKat = d.selectedKategori;
-      let status = d.status[d.status.length - 1];
-      kategori.push({
-        key: d.idk,
-        title: (
-          <Text style={[styles.titleList, {color: theme.colors.primary}]}>
-            {d.name}
-          </Text>
-        ),
-        subtitle: (
-          <View>
-            <Text style={[styles.titleList, {color: theme.colors.secondary}]}>
-              {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
-            </Text>
-            <View style={{marginTop: 2, flexDirection: 'row'}}>
-              <Text
-                style={[
-                  styles.titleList,
-                  {
-                    color: this.getStatusColor(status.label),
-                    fontSize: 12,
-                  },
-                ]}>
-                {status.label}
-              </Text>
-              {status.label !== 'Menunggu' ? (
-                <Text
-                  style={{
-                    fontSize: 11,
-                    color: theme.colors.backdrop,
-                    alignSelf: 'flex-end',
-                    marginLeft: 3,
-                  }}>
-                  ({moment(status.waktu).format('DD/MM HH:mm')})
-                </Text>
-              ) : null}
-            </View>
-          </View>
-        ),
-        rightAvatar: (
-          <View style={{flexDirection: 'column'}}>
-            <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-              {d.detail.diskonStatus || selectedKat.diskonStatus ? (
-                <Text style={{color: theme.colors.accent, fontSize: 12}}>
-                  Disc.
-                </Text>
-              ) : null}
-              {this.showDiscount(
-                d.detail,
-                '',
-                '',
-                {
-                  color: theme.colors.accent,
-                  fontSize: 12,
-                },
-                detail.isMember,
-              )}
-              {d.detail.diskonStatus && selectedKat.diskonStatus ? (
-                <Text style={{color: theme.colors.accent, fontSize: 12}}>
-                  &nbsp;&&nbsp;
-                </Text>
-              ) : null}
-              {this.showDiscount(
-                selectedKat,
-                '',
-                '',
-                {
-                  color: theme.colors.accent,
-                  fontSize: 12,
-                },
-                detail.isMember,
-              )}
-            </View>
-            <View
-              style={{
-                flexDirection: 'row',
-              }}>
-              <Text style={styles.subtitleList}>
-                {selectedKat.harga.toString().formatNumber()} (x{d.jumlah})
-              </Text>
-            </View>
-          </View>
-        ),
-      });
-    });
-
-    return kategori;
-  }
-
-  showBottomSheet(indexRow, total) {
-    let data = this.state.listData[indexRow];
-    data.total = total;
-    this.setState({selectedTransaksi: data, openBs: true});
-    this.bs.current.snapTo(1);
   }
 
   formatDiskon(diskon) {
@@ -198,181 +105,35 @@ class HistoryScreen extends React.PureComponent {
     return total;
   }
 
-  showDiscount(detail, prefix, suffix, style, isMember) {
-    if (detail.diskonStatus) {
-      if (isMember) {
-        if (this.formatDiskon(detail.diskon.member) !== 0) {
-          return (
-            <Text style={style}>
-              {prefix}
-              {detail.diskon.member}
-              {suffix}
-            </Text>
-          );
-        }
-      } else {
-        if (this.formatDiskon(detail.diskon.general) !== 0) {
-          return (
-            <Text style={style}>
-              {prefix}
-              {detail.diskon.general}
-              {suffix}
-            </Text>
-          );
-        }
-      }
-    }
-    return null;
-  }
-
-  content() {
-    const {
-      ido,
-      created_at,
-      detail,
-      total,
-      pembayaran,
-    } = this.state.selectedTransaksi;
-    return (
-      <View
-        style={{
-          paddingHorizontal: 20,
-          paddingBottom: 15,
-          backgroundColor: '#fff',
-        }}>
-        <View style={styles.rowsBetween}>
-          <Text style={styles.titleList}>ID#{ido}</Text>
-          <Text style={{fontSize: 14, fontWeight: 'bold'}}>
-            {moment(created_at).format('DD/MM/YYYY')}
-          </Text>
-        </View>
-        <Divider style={styles.divider} />
-        <Text style={[styles.textLabel, {marginBottom: 10, fontSize: 15}]}>
-          Barang Laundry
-        </Text>
-        <ListOptions
-          options={this.listViewBarang(detail)}
-          containerStyle={{
-            paddingHorizontal: 0,
-            paddingVertical: 10,
-            borderTopWidth: 0.5,
-            borderTopColor: '#e2e2e2',
-          }}
-        />
-        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-        <View style={styles.rowsBetween}>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>Total</Text>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>
-            Rp{total.toString().formatNumber()}
-          </Text>
-        </View>
-        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-        <View style={styles.rowsBetween}>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>Tunai</Text>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>
-            Rp{pembayaran.toString().formatNumber()}
-          </Text>
-        </View>
-        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-        <View style={styles.rowsBetween}>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>Belum Dibayar</Text>
-          <Text style={[styles.textLabel, {fontSize: 15}]}>
-            Rp
-            {(parseFloat(total) - parseFloat(pembayaran))
-              .toString()
-              .formatNumber()}
-          </Text>
-        </View>
-        <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
-        <View style={{marginVertical: 10}}>
-          <Text style={styles.textLabel}>Waktu Jemput</Text>
-          <Text style={styles.subtitleList}>
-            {moment(detail.tglJemput).format('DD MMMM YYYY')} (
-            {detail.waktuJemput.label} {detail.waktuJemput.mulai} -{' '}
-            {detail.waktuJemput.berakhir})
-          </Text>
-        </View>
-        <View style={{marginVertical: 10}}>
-          <Text style={styles.textLabel}>Nomor Ponsel</Text>
-          <Text style={styles.subtitleList}>{detail.noHp}</Text>
-        </View>
-        <View style={{marginVertical: 10}}>
-          <Text style={styles.textLabel}>Alamat</Text>
-          <Text style={styles.subtitleList}>{detail.alamat}</Text>
-        </View>
-        <View style={{marginVertical: 10}}>
-          <Text style={styles.textLabel}>Catatan</Text>
-          <Text style={styles.subtitleList}>{detail.catatan}</Text>
-        </View>
-      </View>
-    );
-  }
-
-  renderContent = () => (
-    <View
-      onLayout={event => {
-        let h = event.nativeEvent.layout.height + 30;
-        if (h >= this.screenHeight) {
-          this.setState({
-            bsMaxHeight: this.screenHeight,
-            bsMidHeight: this.screenHeight / 2,
-          });
-        } else {
-          this.setState({bsMidHeight: h});
-        }
-      }}>
-      {this.state.selectedTransaksi && this.content()}
-    </View>
-  );
-
-  renderHeader = () => (
-    <View style={styles.header}>
-      <View style={styles.panelHeader}>
-        <View style={styles.panelHandle} />
-      </View>
-    </View>
-  );
-
-  getStatusColor(label) {
-    let status = {
-      Menunggu: '#ff005a', // Menunggu
-      Dibatalkan: '#737373', // Dibatalkan
-      'Sedang Dijemput': '#ff8e00', // Sedang Dijemput
-      'Sedang Dilaundry': '#009aff', // Sedang Dilaundry
-      'Laundry Selesai': '#00aa2f', // Laundry Selesai
-      'Sedang Diantar': '#ff8e00', // Sedang Diantar
-      'Telah Diterima': '#00aa2f', // Telah Diterima
-      'Telah Dijemput': '#00aa2f', // Telah Diterima
-    };
-    return status[label];
-  }
-
   getStatusLabel(key) {
-    let status = [
-      'Menunggu',
-      'Dibatalkan',
-      'Sedang Dijemput',
-      'Sedang Dilaundry',
-      'Laundry Selesai',
-      'Sedang Diantar',
-      'Telah Diterima',
-      'Telah Dijemput',
-    ];
-    return status[key - 1];
+    let status = ['Dalam Proses', 'Selesai', 'Dibatalkan'];
+    return status[key];
   }
 
-  getStatusColorByKey(key) {
-    let status = [
-      '#ff005a', // Menunggu
-      '#737373', // Dibatalkan
-      '#ff8e00', // Sedang Dijemput
-      '#009aff', // Sedang Dilaundry
-      '#00aa2f', // Laundry Selesai
-      '#ff8e00', // Sedang Diantar
-      '#00aa2f', // Telah Diterima
-      '#00aa2f', // Telah Dijemput
-    ];
-    return status[key - 1];
+  getStatusColor(key) {
+    let status = ['#009aff', Colors.green500, '#909090'];
+    return status[key];
+  }
+
+  getStatusPembayaran(total, pembayaran) {
+    total = parseFloat(total);
+    pembayaran = parseFloat(pembayaran);
+    console.log(pembayaran, total);
+    if (pembayaran === total) {
+      return 'Lunas';
+    }
+    if (pembayaran > 0) {
+      return 'Lunas Sebagian';
+    }
+    return 'Belum Dibayar';
+  }
+
+  getStatusBayarColor(key) {
+    return {
+      Lunas: Colors.green500,
+      'Lunas Sebagian': '#009aff',
+      'Belum Dibayar': '#909090',
+    }[key];
   }
 
   _renderShimmerList(numberRow) {
@@ -424,7 +185,7 @@ class HistoryScreen extends React.PureComponent {
 
   render() {
     console.info('#render : ', 'HistoryScreen.js');
-    const {listData, bsMaxHeight, bsMidHeight, errorLoadingData} = this.state;
+    const {listData, errorLoadingData} = this.state;
     return (
       <View
         onLayout={event => {
@@ -443,7 +204,7 @@ class HistoryScreen extends React.PureComponent {
           }}>
           <Button
             type={'clear'}
-            onPress={() => this.props.navigation.goBack()}
+            onPress={() => this.props.navigation.pop(1)}
             containerStyle={{justifyContent: 'center'}}
             icon={
               <MaterialCommunityIcons
@@ -459,7 +220,9 @@ class HistoryScreen extends React.PureComponent {
               justifyContent: 'center',
               paddingHorizontal: 15,
             }}>
-            <Text style={[styles.textHeader, {color: '#fff'}]}>Riwayat</Text>
+            <Text style={[styles.textHeader, {color: '#fff'}]}>
+              Riwayat Laundry
+            </Text>
           </View>
         </View>
         <View
@@ -482,7 +245,7 @@ class HistoryScreen extends React.PureComponent {
                 <Text style={{textAlign: 'center', color: '#b9b9b9'}}>
                   {errorLoadingData
                     ? 'Sepertinya ada masalah jaringan, coba periksa jaringan atau paket data kamu'
-                    : 'Kamu belum pernah pesan laundry jadi belum ada riwayat pesanan disini, ayo laundry sekarang!'}
+                    : 'Sepertinya tidak ada barang yang sedang anda laundry, ayo laundry sekarang!'}
                 </Text>
               </View>
             ) : (
@@ -493,49 +256,74 @@ class HistoryScreen extends React.PureComponent {
                     d,
                     d.selectedKategori,
                     d.jumlah,
-                    list.detail.isMember,
+                    parseInt(list.detail.isMember),
                   );
                 });
-
                 const tmpTotalLaundry = totalLaundry;
                 totalLaundry = totalLaundry.toString().formatNumber();
                 return (
                   <ListItem
                     key={i}
                     underlayColor={'rgba(0,0,0,0.14)'}
-                    onPress={() => this.showBottomSheet(i, tmpTotalLaundry)}
+                    onPress={() =>
+                      this.props.navigation.navigate('DetailOrderScreen', {
+                        id: list.ido,
+                      })
+                    }
                     title={null}
                     // titleStyle={[styles.titleList, {fontSize: 13, color: 'grey'}]}
                     subtitle={
                       <View style={{flexDirection: 'column'}}>
+                        <Text style={{fontSize: 12, color: 'grey'}}>
+                          {list.ido}
+                        </Text>
                         <Text style={{fontSize: 20}}>Rp{totalLaundry}</Text>
-                        <View style={{flexDirection: 'row'}}>
-                          <Text style={{fontSize: 12}}>
-                            {moment(list.created_at).format('DD/MM/YYYY')}
-                          </Text>
-                          <Text style={{fontSize: 12, color: 'grey'}}>
-                            &nbsp;&mdash;&nbsp;{list.ido}
-                          </Text>
-                        </View>
                       </View>
                     }
                     containerStyle={{paddingVertical: 15}}
                     subtitleStyle={styles.subtitleList}
+                    leftElement={
+                      <View style={{flexDirection: 'column'}}>
+                        <Text
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 'bold',
+                            color: Colors.green500,
+                            textAlign: 'center',
+                          }}>
+                          {moment(list.created_at).format('DD')}
+                        </Text>
+                        <Text style={{fontSize: 11, textAlign: 'center'}}>
+                          {moment(list.created_at).format('MM/YY')}
+                        </Text>
+                      </View>
+                    }
                     rightElement={
                       <View style={{flexDirection: 'column'}}>
-                        <Button
-                          type={'outline'}
-                          title={this.getStatusLabel(list.status).toUpperCase()}
-                          titleStyle={{
-                            fontSize: 12,
-                            color: this.getStatusColorByKey(list.status),
-                          }}
-                          buttonStyle={{
-                            paddingVertical: 3,
-                            borderRadius: 15,
-                            borderColor: this.getStatusColorByKey(list.status),
-                          }}
-                        />
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            color: '#fff',
+                            alignSelf: 'flex-end',
+                            paddingVertical: 2,
+                            paddingHorizontal: 7,
+                            borderRadius: 5,
+                            backgroundColor: this.getStatusColor(list.status),
+                          }}>
+                          {this.getStatusLabel(list.status)}
+                        </Text>
+                        <Text
+                          style={{
+                            alignSelf: 'flex-end',
+                            fontSize: 11,
+                            color: Colors.grey600,
+                            marginTop: 2,
+                          }}>
+                          {this.getStatusPembayaran(
+                            tmpTotalLaundry,
+                            list.pembayaran,
+                          ).toUpperCase()}
+                        </Text>
                       </View>
                     }
                     bottomDivider
@@ -545,34 +333,6 @@ class HistoryScreen extends React.PureComponent {
             )}
           </FlatContainer>
         </View>
-        <BottomSheet
-          ref={this.bs}
-          snapPoints={[bsMaxHeight, bsMidHeight, 0]}
-          renderContent={this.renderContent}
-          renderHeader={this.renderHeader}
-          initialSnap={2}
-          enabledBottomInitialAnimation={true}
-          onCloseEnd={() => {
-            if (this.state.openBs) {
-              this.setState({openBs: false});
-            }
-          }}
-        />
-        {this.state.openBs ? (
-          <TouchableOpacity
-            onPress={() => {
-              this.bs.current.snapTo(2);
-              this.setState({openBs: false});
-            }}
-            style={{
-              position: 'absolute',
-              backgroundColor: 'rgba(0,0,0,0.27)',
-              height: '100%',
-              width: '100%',
-              zIndex: 1,
-            }}
-          />
-        ) : null}
       </View>
     );
   }

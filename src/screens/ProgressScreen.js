@@ -12,6 +12,7 @@ import {inject, observer} from 'mobx-react';
 import moment from '../components/DateFormater';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
+import {Colors} from 'react-native-paper';
 
 @inject('orderStore')
 @observer
@@ -104,49 +105,35 @@ class ProgressScreen extends React.PureComponent {
     return total;
   }
 
-  getStatusColor(label) {
-    let status = {
-      Menunggu: '#ff005a', // Menunggu
-      Dibatalkan: '#737373', // Dibatalkan
-      'Sedang Dijemput': '#ff8e00', // Sedang Dijemput
-      'Sedang Dilaundry': '#009aff', // Sedang Dilaundry
-      'Laundry Selesai': '#00aa2f', // Laundry Selesai
-      'Sedang Diantar': '#ff8e00', // Sedang Diantar
-      'Telah Diterima': '#00aa2f', // Telah Diterima
-      'Telah Dijemput': '#00aa2f', // Telah Diterima
-      'Telah Diantar': '#00aa2f', // Telah Diterima
-    };
-    return status[label];
-  }
-
   getStatusLabel(key) {
-    let status = [
-      'Menunggu',
-      'Dibatalkan',
-      'Sedang Dijemput',
-      'Sedang Dilaundry',
-      'Laundry Selesai',
-      'Sedang Diantar',
-      'Telah Diterima',
-      'Telah Dijemput',
-      'Telah Diantar',
-    ];
-    return status[key - 1];
+    let status = ['Dalam Proses', 'Selesai', 'Dibatalkan'];
+    return status[key];
   }
 
-  getStatusColorByKey(key) {
-    let status = [
-      '#ff005a', // Menunggu
-      '#737373', // Dibatalkan
-      '#ff8e00', // Sedang Dijemput
-      '#009aff', // Sedang Dilaundry
-      '#00aa2f', // Laundry Selesai
-      '#ff8e00', // Sedang Diantar
-      '#00aa2f', // Telah Diterima
-      '#00aa2f', // Telah Dijemput
-      '#00aa2f', // Telah Diantar
-    ];
-    return status[key - 1];
+  getStatusColor(key) {
+    let status = ['#009aff', Colors.green500, '#909090'];
+    return status[key];
+  }
+
+  getStatusPembayaran(total, pembayaran) {
+    total = parseFloat(total);
+    pembayaran = parseFloat(pembayaran);
+    console.log(pembayaran, total);
+    if (pembayaran === total) {
+      return 'Lunas';
+    }
+    if (pembayaran > 0) {
+      return 'Lunas Sebagian';
+    }
+    return 'Belum Dibayar';
+  }
+
+  getStatusBayarColor(key) {
+    return {
+      Lunas: Colors.green500,
+      'Lunas Sebagian': '#009aff',
+      'Belum Dibayar': '#909090',
+    }[key];
   }
 
   _renderShimmerList(numberRow) {
@@ -217,7 +204,7 @@ class ProgressScreen extends React.PureComponent {
           }}>
           <Button
             type={'clear'}
-            onPress={() => this.props.navigation.goBack()}
+            onPress={() => this.props.navigation.pop(1)}
             containerStyle={{justifyContent: 'center'}}
             icon={
               <MaterialCommunityIcons
@@ -234,7 +221,7 @@ class ProgressScreen extends React.PureComponent {
               paddingHorizontal: 15,
             }}>
             <Text style={[styles.textHeader, {color: '#fff'}]}>
-              Sedang Diproses
+              Laundry Aktif
             </Text>
           </View>
         </View>
@@ -272,7 +259,7 @@ class ProgressScreen extends React.PureComponent {
                     parseInt(list.detail.isMember),
                   );
                 });
-
+                const tmpTotalLaundry = totalLaundry;
                 totalLaundry = totalLaundry.toString().formatNumber();
                 return (
                   <ListItem
@@ -287,34 +274,56 @@ class ProgressScreen extends React.PureComponent {
                     // titleStyle={[styles.titleList, {fontSize: 13, color: 'grey'}]}
                     subtitle={
                       <View style={{flexDirection: 'column'}}>
+                        <Text style={{fontSize: 12, color: 'grey'}}>
+                          {list.ido}
+                        </Text>
                         <Text style={{fontSize: 20}}>Rp{totalLaundry}</Text>
-                        <View style={{flexDirection: 'row'}}>
-                          <Text style={{fontSize: 12}}>
-                            {moment(list.created_at).format('DD/MM/YYYY')}
-                          </Text>
-                          <Text style={{fontSize: 12, color: 'grey'}}>
-                            &nbsp;&mdash;&nbsp;{list.ido}
-                          </Text>
-                        </View>
                       </View>
                     }
                     containerStyle={{paddingVertical: 15}}
                     subtitleStyle={styles.subtitleList}
+                    leftElement={
+                      <View style={{flexDirection: 'column'}}>
+                        <Text
+                          style={{
+                            fontSize: 20,
+                            fontWeight: 'bold',
+                            color: Colors.green500,
+                            textAlign: 'center',
+                          }}>
+                          {moment(list.created_at).format('DD')}
+                        </Text>
+                        <Text style={{fontSize: 11, textAlign: 'center'}}>
+                          {moment(list.created_at).format('MM/YY')}
+                        </Text>
+                      </View>
+                    }
                     rightElement={
                       <View style={{flexDirection: 'column'}}>
-                        <Button
-                          type={'outline'}
-                          title={this.getStatusLabel(list.status).toUpperCase()}
-                          titleStyle={{
-                            fontSize: 12,
-                            color: this.getStatusColorByKey(list.status),
-                          }}
-                          buttonStyle={{
-                            paddingVertical: 3,
-                            borderRadius: 15,
-                            borderColor: this.getStatusColorByKey(list.status),
-                          }}
-                        />
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            color: '#fff',
+                            alignSelf: 'flex-end',
+                            paddingVertical: 2,
+                            paddingHorizontal: 7,
+                            borderRadius: 5,
+                            backgroundColor: this.getStatusColor(list.status),
+                          }}>
+                          {this.getStatusLabel(list.status)}
+                        </Text>
+                        <Text
+                          style={{
+                            alignSelf: 'flex-end',
+                            fontSize: 11,
+                            color: Colors.grey600,
+                            marginTop: 2,
+                          }}>
+                          {this.getStatusPembayaran(
+                            tmpTotalLaundry,
+                            list.pembayaran,
+                          ).toUpperCase()}
+                        </Text>
                       </View>
                     }
                     bottomDivider
