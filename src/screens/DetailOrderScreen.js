@@ -40,7 +40,7 @@ class DetailOrderScreen extends React.PureComponent {
           isLoading: false,
           errorLoadingData: false,
         });
-        console.log('res', res.data.msg);
+        // console.log('res', res.data.msg);
       })
       .catch(err => {
         console.log('error res', err);
@@ -60,10 +60,8 @@ class DetailOrderScreen extends React.PureComponent {
     RestApi.post('/order/batalkan', {id: this.state.batalID})
       .then(response => {
         this.setState({batalID: null, pesanDialog: oldPesan, openBs: false});
-        this.props.navigation.reset({
-          index: 1,
-          routes: [{name: 'HistoryScreen'}],
-        });
+        this.props.navigation.pop(2);
+        this.props.navigation.navigate({name: 'HistoryScreen'});
       })
       .catch(e => {
         this.setState({batalID: null, openBs: false});
@@ -82,7 +80,7 @@ class DetailOrderScreen extends React.PureComponent {
       idk: idk,
     })
       .then(res => {
-        console.log('terima laundry', res.data.value);
+        //console.log('terima laundry', res.data.value);
         if (res.data.value !== '0') {
           let barang = transaksi.detail.barang;
           let tmpIndex = null;
@@ -217,6 +215,7 @@ class DetailOrderScreen extends React.PureComponent {
     let total = 0;
     let potongan = 0;
     if (selectedKategori) {
+      console.log('globalDiskonStatus', globalDiskonStatus);
       let {diskon, harga, diskonStatus} = selectedKategori;
       let jp = jumlah.toString().replace(',', '.') || 0;
       harga = parseFloat(harga);
@@ -257,155 +256,168 @@ class DetailOrderScreen extends React.PureComponent {
     const {detail} = this.state.transaksi;
     // console.log('re render');
     let kategori = [];
-    detail.barang.map(d => {
-      let selectedKat = d.selectedKategori;
-      let status = d.status[d.status.length - 1];
-      total += this.total(
-        detail.diskonStatus,
-        detail.diskon,
-        selectedKat,
-        d.jumlah,
-        parseInt(detail.isMember),
-      );
-      kategori.push({
-        key: d.idk,
-        value: d.idk,
-        title: (
-          <Text
-            style={[
-              styles.titleList,
-              {color: theme.colors.secondary, fontSize: 13, fontWeight: 'bold'},
-            ]}>
-            {d.name}
-          </Text>
-        ),
-        subtitle: (
-          <View>
+    if (typeof detail !== 'undefined') {
+      detail.barang.map(d => {
+        let selectedKat = d.selectedKategori;
+        let status = d.status[d.status.length - 1];
+        let totalKat = this.total(
+          d.detail.diskonStatus,
+          d.detail.diskon,
+          selectedKat,
+          d.jumlah,
+          parseInt(detail.isMember),
+        );
+        total += totalKat;
+        kategori.push({
+          key: d.idk,
+          value: d.idk,
+          title: (
             <Text
               style={[
                 styles.titleList,
-                {color: theme.colors.secondary, fontSize: 12},
+                {
+                  color: theme.colors.secondary,
+                  fontSize: 13,
+                  fontWeight: 'bold',
+                },
               ]}>
-              {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
+              {d.name}
             </Text>
-            <View style={{marginTop: 2, flexDirection: 'row'}}>
+          ),
+          subtitle: (
+            <View>
               <Text
                 style={[
                   styles.titleList,
-                  {
-                    color: this.getStatusColor(status.label),
-                    fontSize: 12,
-                  },
+                  {color: theme.colors.secondary, fontSize: 13},
                 ]}>
-                {status.label}
+                {selectedKat.name} ({selectedKat.waktuPengerjaan} Jam)
               </Text>
-              {status.label !== 'Menunggu' ? (
+              <View style={{marginTop: 2, flexDirection: 'row'}}>
+                <Text
+                  style={[
+                    styles.titleList,
+                    {
+                      color: this.getStatusColor(status.label),
+                      fontSize: 13,
+                    },
+                  ]}>
+                  {status.label}
+                </Text>
+                {status.label !== 'Menunggu' ? (
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: theme.colors.backdrop,
+                      alignSelf: 'flex-end',
+                      marginLeft: 3,
+                    }}>
+                    ({moment(status.waktu).format('DD/MM HH:mm')})
+                  </Text>
+                ) : null}
+              </View>
+              {d.waktuPengantaran ? (
                 <Text
                   style={{
-                    fontSize: 11,
-                    color: theme.colors.backdrop,
-                    alignSelf: 'flex-end',
-                    marginLeft: 3,
+                    marginTop: 3,
+                    fontSize: 12,
                   }}>
-                  ({moment(status.waktu).format('DD/MM HH:mm')})
+                  Estimasi selesai{' '}
+                  {moment(d.waktuPengantaran).format('DD/MM HH:mm')}
                 </Text>
               ) : null}
             </View>
-            {d.waktuPengantaran ? (
+          ),
+          rightAvatar: (
+            <View style={{flexDirection: 'column'}}>
               <Text
-                style={{
-                  marginTop: 3,
-                  fontSize: 11,
-                  // borderRadius: 5,
-                  // alignSelf: 'flex-start',
-                  // paddingHorizontal: 5,
-                  // paddingVertical: 2,
-                  // backgroundColor: 'rgba(215,215,215,0.4)',
-                }}>
-                Estimasi selesai{' '}
-                {moment(d.waktuPengantaran).format('DD/MM HH:mm')}
+                style={[
+                  styles.subtitleList,
+                  {textAlign: 'right', fontSize: 12},
+                ]}>
+                {selectedKat.harga.toString().formatNumber()} (x{d.jumlah})
               </Text>
-            ) : null}
-          </View>
-        ),
-        rightAvatar: (
-          <View style={{flexDirection: 'column'}}>
-            <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
-              {d.detail.diskonStatus || selectedKat.diskonStatus ? (
-                <Text style={{color: theme.colors.accent, fontSize: 12}}>
-                  Disc.
-                </Text>
+              <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+                {d.detail.diskonStatus || selectedKat.diskonStatus ? (
+                  <Text style={{color: theme.colors.accent, fontSize: 12}}>
+                    Disc.
+                  </Text>
+                ) : null}
+                {this.showDiscount(
+                  d.detail,
+                  '',
+                  '',
+                  {
+                    color: theme.colors.accent,
+                    fontSize: 12,
+                  },
+                  parseInt(detail.isMember),
+                )}
+                {d.detail.diskonStatus && selectedKat.diskonStatus ? (
+                  <Text style={{color: theme.colors.accent, fontSize: 11}}>
+                    &nbsp;&&nbsp;
+                  </Text>
+                ) : null}
+                {this.showDiscount(
+                  selectedKat,
+                  '',
+                  '',
+                  {
+                    color: theme.colors.accent,
+                    fontSize: 12,
+                  },
+                  parseInt(detail.isMember),
+                )}
+              </View>
+              <Text
+                style={[
+                  styles.subtitleList,
+                  {textAlign: 'right', fontSize: 13, fontWeight: 'bold'},
+                ]}>
+                {totalKat.toString().formatNumber()}
+              </Text>
+              {![
+                'Menunggu',
+                'Dibatalkan',
+                'Sedang Dijemput',
+                'Sedang Dilaundry',
+                'Telah Diterima',
+                'Telah Dijemput',
+              ].includes(status.label) ? (
+                <Button
+                  type={'outline'}
+                  title={'Terima Laundry'}
+                  titleStyle={{
+                    fontSize: 12,
+                    color: '#fff',
+                  }}
+                  disabledTitleStyle={{color: '#fff'}}
+                  disabledStyle={{backgroundColor: '#ccc'}}
+                  disabled={!!this.state[d.idk]}
+                  icon={
+                    this.state[d.idk] ? (
+                      <ActivityIndicator
+                        animating={true}
+                        color={theme.colors.white}
+                        style={{marginRight: 5}}
+                      />
+                    ) : null
+                  }
+                  onPress={() => this.postTerimaLaundry(d.idk)}
+                  containerStyle={{marginTop: 2}}
+                  buttonStyle={{
+                    paddingVertical: 5,
+                    borderRadius: 15,
+                    backgroundColor: this.getStatusColorByKey(7),
+                    borderColor: this.getStatusColorByKey(7),
+                  }}
+                />
               ) : null}
-              {this.showDiscount(
-                d.detail,
-                '',
-                '',
-                {
-                  color: theme.colors.accent,
-                  fontSize: 12,
-                },
-                parseInt(detail.isMember),
-              )}
-              {d.detail.diskonStatus && selectedKat.diskonStatus ? (
-                <Text style={{color: theme.colors.accent, fontSize: 12}}>
-                  &nbsp;&&nbsp;
-                </Text>
-              ) : null}
-              {this.showDiscount(
-                selectedKat,
-                '',
-                '',
-                {
-                  color: theme.colors.accent,
-                  fontSize: 12,
-                },
-                parseInt(detail.isMember),
-              )}
             </View>
-            <Text style={[styles.subtitleList, {textAlign: 'right'}]}>
-              {selectedKat.harga.toString().formatNumber()} (x{d.jumlah})
-            </Text>
-            {![
-              'Menunggu',
-              'Dibatalkan',
-              'Sedang Dijemput',
-              'Sedang Dilaundry',
-              'Telah Diterima',
-              'Telah Dijemput',
-            ].includes(status.label) ? (
-              <Button
-                type={'outline'}
-                title={'Terima Laundry'}
-                titleStyle={{
-                  fontSize: 12,
-                  color: '#fff',
-                }}
-                disabledTitleStyle={{color: '#fff'}}
-                disabledStyle={{backgroundColor: '#ccc'}}
-                disabled={!!this.state[d.idk]}
-                icon={
-                  this.state[d.idk] ? (
-                    <ActivityIndicator
-                      animating={true}
-                      color={theme.colors.white}
-                      style={{marginRight: 5}}
-                    />
-                  ) : null
-                }
-                onPress={() => this.postTerimaLaundry(d.idk)}
-                containerStyle={{marginTop: 2}}
-                buttonStyle={{
-                  paddingVertical: 5,
-                  borderRadius: 15,
-                  backgroundColor: this.getStatusColorByKey(7),
-                  borderColor: this.getStatusColorByKey(7),
-                }}
-              />
-            ) : null}
-          </View>
-        ),
+          ),
+        });
       });
-    });
+    }
     this.setState({total: total});
     return kategori;
   }
@@ -492,9 +504,48 @@ class DetailOrderScreen extends React.PureComponent {
     });
   }
 
-  render() {
-    let {ido, created_at, detail, status, pembayaran} = this.state.transaksi;
+  kembalian(tunai) {
+    const total = parseFloat(this.state.total);
+    tunai = parseFloat(tunai);
+    return total > tunai ? 0 : tunai - total;
+  }
 
+  getStatusPembayaran(total, pembayaran) {
+    total = parseFloat(total);
+    pembayaran = parseFloat(pembayaran);
+    if (pembayaran === total) {
+      return 'Lunas';
+    }
+    if (pembayaran > 0) {
+      return 'Lunas Sebagian';
+    }
+    return 'Belum Dibayar';
+  }
+
+  render() {
+    let {
+      ido,
+      created_at,
+      detail,
+      pembayaran,
+      detail_outlet,
+      detail_user,
+    } = this.state.transaksi;
+    let isBisaBatalkan = false;
+    let tunai = 0;
+    if (typeof detail !== 'undefined') {
+      tunai = detail.tunai || 0;
+      console.log('detail_outlet', detail_outlet, detail_user);
+      const barang = detail.barang;
+      for (let i in barang) {
+        const status = barang[i].status;
+        isBisaBatalkan = status[status.length - 1].label === 'Menunggu';
+        if (isBisaBatalkan) {
+          break;
+        }
+      }
+      isBisaBatalkan = !isBisaBatalkan;
+    }
     return (
       <FlatContainer
         onRefresh={() => this.loadingData()}
@@ -511,15 +562,43 @@ class DetailOrderScreen extends React.PureComponent {
             this._renderShimmerList(7)
           ) : ido ? (
             <View>
-              <View style={styles.rowsBetween}>
-                <Text style={{color: theme.colors.backdrop}}>ID#{ido}</Text>
-                <Text style={{color: theme.colors.backdrop}}>
-                  {moment(created_at).format('DD/MM/YYYY')}
+              <Text
+                style={{fontSize: 16, textAlign: 'center', fontWeight: 'bold'}}>
+                {detail_outlet.nama}
+              </Text>
+              <Text style={{fontSize: 12, textAlign: 'center'}}>
+                {detail_outlet.alamat}
+              </Text>
+              <Text style={{fontSize: 12, textAlign: 'center'}}>
+                Telp.{detail_outlet.phone}
+              </Text>
+              <Divider
+                style={{backgroundColor: '#e2e2e2', marginVertical: 10}}
+              />
+              <View style={[styles.rowsBetween, {marginBottom: 5}]}>
+                <Text style={{color: theme.colors.secondary, fontSize: 12}}>
+                  ID#{ido}
+                </Text>
+                <Text style={{color: theme.colors.secondary, fontSize: 12}}>
+                  {moment(created_at).format('DD/MM/YYYY HH:mm')}
                 </Text>
               </View>
-              <Divider style={styles.divider} />
-              <Text
-                style={[styles.textLabel, {marginBottom: 10, fontSize: 15}]}>
+              <View style={styles.rowsBetween}>
+                <Text style={{fontWeight: 'bold', fontSize: 12}}>
+                  Nama Pelanggan
+                </Text>
+                <Text style={{fontWeight: 'bold', fontSize: 12}}>
+                  {detail_user.name}
+                </Text>
+              </View>
+              <Divider
+                style={{
+                  backgroundColor: '#e2e2e2',
+                  marginTop: 10,
+                  marginBottom: 5,
+                }}
+              />
+              <Text style={[styles.textLabel, {marginBottom: 5, fontSize: 13}]}>
                 Barang Laundry
               </Text>
               <ListOptions
@@ -533,28 +612,47 @@ class DetailOrderScreen extends React.PureComponent {
               />
               <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
               <View style={styles.rowsBetween}>
-                <Text style={[styles.textLabel, {fontSize: 15}]}>Total</Text>
-                <Text style={[styles.textLabel, {fontSize: 15}]}>
+                <Text style={[styles.textLabel, {fontSize: 14}]}>Total</Text>
+                <Text style={[styles.textLabel, {fontSize: 14}]}>
                   Rp{this.state.total?.toString().formatNumber()}
                 </Text>
               </View>
               <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
               <View style={styles.rowsBetween}>
-                <Text style={[styles.textLabel, {fontSize: 15}]}>Tunai</Text>
-                <Text style={[styles.textLabel, {fontSize: 15}]}>
-                  Rp{pembayaran?.toString().formatNumber()}
+                <Text style={[styles.textLabel, {fontSize: 14}]}>Tunai</Text>
+                <Text style={[styles.textLabel, {fontSize: 14}]}>
+                  Rp{tunai?.toString().formatNumber()}
                 </Text>
               </View>
               <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
               <View style={styles.rowsBetween}>
-                <Text style={[styles.textLabel, {fontSize: 15}]}>
+                <Text style={[styles.textLabel, {fontSize: 14}]}>Kembali</Text>
+                <Text style={[styles.textLabel, {fontSize: 14}]}>
+                  Rp
+                  {this.kembalian(tunai)
+                    .toString()
+                    .formatNumber()}
+                </Text>
+              </View>
+              <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+              <View style={styles.rowsBetween}>
+                <Text style={[styles.textLabel, {fontSize: 14}]}>
                   Belum Dibayar
                 </Text>
-                <Text style={[styles.textLabel, {fontSize: 15}]}>
+                <Text style={[styles.textLabel, {fontSize: 14}]}>
                   Rp
                   {(parseFloat(this.state.total) - parseFloat(pembayaran))
                     .toString()
                     .formatNumber()}
+                </Text>
+              </View>
+              <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
+              <View style={styles.rowsBetween}>
+                <Text style={[styles.textLabel, {fontSize: 14}]}>
+                  Status Pembayaran
+                </Text>
+                <Text style={[styles.textLabel, {fontSize: 14}]}>
+                  {this.getStatusPembayaran(this.state.total, pembayaran)}
                 </Text>
               </View>
               <Divider style={[styles.divider, {backgroundColor: '#e2e2e2'}]} />
@@ -580,6 +678,13 @@ class DetailOrderScreen extends React.PureComponent {
                 </Text>
               </View>
               <View style={{marginVertical: 10}}>
+                <Text style={styles.textLabel}>Parfum</Text>
+                <Text style={styles.subtitleList}>
+                  {detail.parfum?.nama} ({detail.parfum?.gender},{' '}
+                  {detail.parfum?.aroma})
+                </Text>
+              </View>
+              <View style={{marginVertical: 10}}>
                 <Text style={styles.textLabel}>Waktu Jemput</Text>
                 <Text style={styles.subtitleList}>
                   {moment(detail.tglJemput).format('DD MMMM YYYY')} (
@@ -587,6 +692,14 @@ class DetailOrderScreen extends React.PureComponent {
                   {detail.waktuJemput.berakhir})
                 </Text>
               </View>
+              {detail.tglMasuk && (
+                <View style={{marginVertical: 10}}>
+                  <Text style={styles.textLabel}>Tanggal Masuk</Text>
+                  <Text style={styles.subtitleList}>
+                    {moment(detail.tglMasuk).format('DD MMMM YYYY HH:mm')}
+                  </Text>
+                </View>
+              )}
               <View style={{marginVertical: 10}}>
                 <Text style={styles.textLabel}>Nomor Ponsel</Text>
                 <Text style={styles.subtitleList}>{detail.noHp}</Text>
@@ -603,7 +716,7 @@ class DetailOrderScreen extends React.PureComponent {
                 <Button
                   title={'Batalkan'}
                   type={'outline'}
-                  disabled={!JSON.stringify(['1']).includes(status)}
+                  disabled={isBisaBatalkan}
                   buttonStyle={{borderColor: theme.colors.accent}}
                   titleStyle={{color: theme.colors.accent}}
                   onPress={() => {
