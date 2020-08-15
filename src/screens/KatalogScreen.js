@@ -61,10 +61,10 @@ class KatalogScreen extends React.PureComponent {
 
   loadingData() {
     this.setState({isLoading: true, errorLoadingData: false});
-    console.log('response katalog run');
+    // console.log('response katalog run');
     RestApi.get('/katalog/all-active')
       .then(res => {
-        console.log('response katalog', res.data.value);
+        // console.log('response katalog', res.data.value);
         this.setState({
           listData: res.data.value,
           isLoading: false,
@@ -112,7 +112,7 @@ class KatalogScreen extends React.PureComponent {
           }
         }
       }
-      console.log('sync res ===> ', syncResult);
+      // console.log('sync res ===> ', syncResult);
       setData(syncResult);
     }
   }
@@ -138,6 +138,10 @@ class KatalogScreen extends React.PureComponent {
           value: d,
           rightElement: (
             <View style={{flexDirection: 'column'}}>
+              {this.showDiscount(data.detail, 'Disc. (', ')', {
+                color: theme.colors.accent,
+                alignSelf: 'flex-end',
+              })}
               {this.showDiscount(d, 'Disc. (', ')', {
                 color: theme.colors.accent,
                 alignSelf: 'flex-end',
@@ -277,7 +281,7 @@ class KatalogScreen extends React.PureComponent {
       }
 
       setData(tmpOrder);
-      console.log('order list ==> ' + getData.length, JSON.stringify(getData));
+      // console.log('order list ==> ' + getData.length, JSON.stringify(getData));
       this.bs.current.snapTo(2);
       Keyboard.dismiss();
     }
@@ -347,7 +351,11 @@ class KatalogScreen extends React.PureComponent {
               }}>
               <TextInputMask
                 onChangeText={(formatted, extracted) => {
-                  this.setState({jumlahPesanan: formatted});
+                  let tmp = formatted.toString().replace(',', '.');
+                  tmp = (tmp * 1).toString().replace('.', ',');
+                  this.setState({
+                    jumlahPesanan: tmp,
+                  });
                 }}
                 defaultValue={this.state.jumlahPesanan.toString()}
                 keyboardType={'decimal-pad'}
@@ -521,10 +529,12 @@ class KatalogScreen extends React.PureComponent {
             ) : listData.length ? (
               listData.map((list, i) => {
                 let harga = 0;
+                let diskonPrimary = {};
 
                 list.detail.kategori.forEach(d => {
                   if (d.primary) {
                     harga = d.harga;
+                    diskonPrimary = d;
                   }
                 });
 
@@ -591,6 +601,11 @@ class KatalogScreen extends React.PureComponent {
                         </Text>
                         {/*hanya discount global saja yang muncul*/}
                         {this.showDiscount(list.detail, 'Disc. (', ')', {
+                          fontSize: 13,
+                          color: theme.colors.accent,
+                          // marginLeft: 10,
+                        })}
+                        {this.showDiscount(diskonPrimary, 'Disc. (', ')', {
                           fontSize: 13,
                           color: theme.colors.accent,
                           // marginLeft: 10,

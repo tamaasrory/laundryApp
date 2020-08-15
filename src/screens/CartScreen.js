@@ -14,6 +14,8 @@ import Path from '../router/Path';
 import TextInputMask from 'react-native-text-input-mask';
 import {inject, observer} from 'mobx-react';
 import ListOptions from '../components/ListOptions';
+import {Colors} from 'react-native-paper';
+var moment = require('moment');
 
 @inject('orderStore')
 @observer
@@ -44,7 +46,7 @@ class CartScreen extends React.PureComponent {
     this.setState({isMember: boolMember === '1'});
   }
 
-  showBottomSheet(indexRow) {
+  showBottomSheet(indexRow, dataSelected) {
     let data = this.props.orderStore.getData[indexRow];
     let kategori = [];
     data.detail.kategori.map(d => {
@@ -65,6 +67,10 @@ class CartScreen extends React.PureComponent {
           value: d,
           rightElement: (
             <View style={{flexDirection: 'column'}}>
+              {this.showDiscount(data.detail, 'Disc. (', ')', {
+                color: theme.colors.accent,
+                alignSelf: 'flex-end',
+              })}
               {this.showDiscount(d, 'Disc. (', ')', {
                 color: theme.colors.accent,
                 alignSelf: 'flex-end',
@@ -85,8 +91,13 @@ class CartScreen extends React.PureComponent {
     this.setState({
       selectedBarang: data,
       kategori: kategori,
-      jumlahPesanan: data.jumlah.toString().formatNumber(),
-      selectedKategori: data.selectedKategori,
+      jumlahPesanan: dataSelected.jumlah
+        ? dataSelected.jumlah.toString().formatNumber()
+        : 0,
+      checked: !!dataSelected.jumlah,
+      selectedKategori: dataSelected.selectedKategori
+        ? dataSelected.selectedKategori
+        : null,
       openBs: true,
     });
     this.bs.current.snapTo(1);
@@ -186,7 +197,6 @@ class CartScreen extends React.PureComponent {
     if (this.state.selectedKategori) {
       /** @type OrderStore */
       const {setData, getData} = this.props.orderStore;
-      const kategori = this.state.selectedKategori;
       let data = this.state.selectedBarang;
 
       let jp = this.state.jumlahPesanan.toString().replace(',', '.') || 0;
@@ -198,15 +208,11 @@ class CartScreen extends React.PureComponent {
         }
       });
 
-      data.selectedKategori = {
-        name: kategori.name,
-        harga: kategori.harga,
-        diskonStatus: kategori.diskonStatus,
-        waktuPengerjaan: kategori.waktuPengerjaan,
-        diskon: kategori.diskon,
-      };
-
+      data.selectedKategori = this.state.selectedKategori;
       data.jumlah = parseFloat(jp);
+      data.status = [
+        {label: 'Menunggu', waktu: moment().format('YYYY-MM-DD HH:mm:ss')},
+      ];
 
       if (indexToUpdate !== null) {
         tmpOrder[indexToUpdate] = data;
@@ -215,7 +221,7 @@ class CartScreen extends React.PureComponent {
       }
 
       setData(tmpOrder);
-      console.log('order list ==> ' + getData.length, JSON.stringify(getData));
+      // console.log('order list ==> ' + getData.length, JSON.stringify(getData));
       this.bs.current.snapTo(2);
       Keyboard.dismiss();
     }
@@ -234,7 +240,7 @@ class CartScreen extends React.PureComponent {
           this.setState({bsMidHeight: h});
         }
       }}>
-      {this.state.selectedBarang ? (
+      {this.state.selectedBarang && (
         <View
           style={{
             paddingHorizontal: 0,
@@ -263,14 +269,19 @@ class CartScreen extends React.PureComponent {
             })}
           />
           <Divider style={styles.divider} />
+
           <Text style={[styles.textLabel, {paddingHorizontal: 15}]}>
             Berapa {this.state.selectedBarang.detail.satuan} ?
           </Text>
+
           <View
-            style={[
-              styles.rowsBetween,
-              {marginTop: 10, paddingHorizontal: 15},
-            ]}>
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginTop: 10,
+              paddingHorizontal: 15,
+              marginBottom: 7,
+            }}>
             <View
               style={{
                 flexDirection: 'row',
@@ -280,7 +291,11 @@ class CartScreen extends React.PureComponent {
               }}>
               <TextInputMask
                 onChangeText={(formatted, extracted) => {
-                  this.setState({jumlahPesanan: formatted});
+                  let tmp = formatted.toString().replace(',', '.');
+                  tmp = (tmp * 1).toString().replace('.', ',');
+                  this.setState({
+                    jumlahPesanan: tmp,
+                  });
                 }}
                 defaultValue={this.state.jumlahPesanan.toString()}
                 keyboardType={'decimal-pad'}
@@ -291,7 +306,11 @@ class CartScreen extends React.PureComponent {
                   fontSize: 18,
                   paddingVertical: 2,
                 }}
-                mask={'[9999],[99]'}
+                mask={
+                  this.state.selectedBarang.detail.decimal
+                    ? '[9999],[99]'
+                    : '[9999]'
+                }
               />
               <Badge
                 value={this.state.selectedBarang.detail.satuan.toUpperCase()}
@@ -307,7 +326,12 @@ class CartScreen extends React.PureComponent {
             </View>
             <Button
               type={'solid'}
-              disabled={!parseFloat(this.state.jumlahPesanan)}
+              disabled={
+                !(
+                  parseFloat(this.state.jumlahPesanan) &&
+                  this.state.selectedKategori
+                )
+              }
               buttonStyle={{
                 borderColor: '#1dbc60',
                 backgroundColor: '#1dbc60',
@@ -327,7 +351,7 @@ class CartScreen extends React.PureComponent {
             />
           </View>
         </View>
-      ) : null}
+      )}
     </View>
   );
 
@@ -407,19 +431,38 @@ class CartScreen extends React.PureComponent {
             ) : null}
             {this.props.orderStore.getData.map((list, i) => {
               let harga = 0;
+              let subtotal = 0;
+              let diskonPrimary = {};
+
               list.detail.kategori.forEach(d => {
                 if (d.primary) {
                   harga = d.harga;
+                  diskonPrimary = d;
                 }
               });
-              harga = this.total(list, list.selectedKategori, list.jumlah);
-              totalLaundry += harga;
+
+              let dataSelected = null;
+              this.props.orderStore.getData.forEach(d => {
+                if (JSON.stringify(d).includes(list.idk)) {
+                  dataSelected = d;
+                }
+              });
+
+              if (dataSelected) {
+                subtotal = this.total(
+                  dataSelected,
+                  dataSelected.selectedKategori,
+                  dataSelected.jumlah,
+                );
+                totalLaundry += subtotal;
+              }
+
               harga = harga.toString().formatNumber();
               return (
                 <ListItem
                   key={i}
                   underlayColor={'rgba(0,0,0,0.14)'}
-                  onPress={() => this.showBottomSheet(i)}
+                  onPress={() => this.showBottomSheet(i, dataSelected || {})}
                   leftElement={
                     <View
                       style={{
@@ -428,7 +471,7 @@ class CartScreen extends React.PureComponent {
                         elevation: 3,
                       }}>
                       <Image
-                        style={{width: 55, height: 55, borderRadius: 12}}
+                        style={{width: 45, height: 45, borderRadius: 12}}
                         source={{
                           uri: `${Path.priceListThumbImage}/${
                             list.detail.photo
@@ -437,43 +480,66 @@ class CartScreen extends React.PureComponent {
                       />
                     </View>
                   }
-                  rightAvatar={
-                    <View style={{flexDirection: 'column'}}>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 'bold',
-                          textAlign: 'center',
-                        }}>
-                        {list.jumlah}
-                      </Text>
-                      <Text style={{fontSize: 12, textAlign: 'center'}}>
-                        {list.detail.satuan.toUpperCase()}
-                      </Text>
-                    </View>
-                  }
                   rightElement={
-                    <Button
-                      type={'clear'}
-                      buttonStyle={{borderRadius: 50}}
-                      onPress={() => this.deleteItem(list)}
-                      icon={
-                        <MaterialCommunityIcons
-                          color={theme.colors.accent}
-                          size={24}
-                          name={'close'}
-                        />
-                      }
-                    />
+                    <View style={{flexDirection: 'column'}}>
+                      <View style={{flexDirection: 'column', paddingTop: 5}}>
+                        <View
+                          style={{flexDirection: 'row', alignSelf: 'flex-end'}}>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              fontWeight: 'bold',
+                              textAlign: 'center',
+                            }}>
+                            {list.jumlah}
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              textAlign: 'center',
+                              marginLeft: 2,
+                            }}>
+                            {list.detail.satuan.toUpperCase()}
+                          </Text>
+                        </View>
+                        <Text style={{fontWeight: 'bold'}}>
+                          Rp{subtotal.toString().formatNumber()}
+                        </Text>
+                      </View>
+                      <Button
+                        type={'clear'}
+                        buttonStyle={{
+                          alignSelf: 'flex-end',
+                          padding: 0,
+                        }}
+                        titleStyle={{color: Colors.red500, fontSize: 13}}
+                        onPress={() => this.deleteItem(list)}
+                        title={'HAPUS'}
+                      />
+                    </View>
                   }
                   title={list.name}
                   titleStyle={[
                     styles.titleList,
-                    {fontSize: 15, fontWeight: 'bold'},
+                    {fontSize: 14, fontWeight: 'bold'},
                   ]}
                   subtitle={
                     <View style={{flexDirection: 'column'}}>
-                      <Text style={styles.subtitleList}>Rp{harga}</Text>
+                      <Text style={styles.subtitleList}>
+                        Rp{harga} /{' '}
+                        {list.detail.satuan.toString().toUpperCase()}
+                      </Text>
+                      {/*hanya discount global saja yang muncul*/}
+                      {this.showDiscount(list.detail, 'Disc. (', ')', {
+                        fontSize: 13,
+                        color: theme.colors.accent,
+                        // marginLeft: 10,
+                      })}
+                      {this.showDiscount(diskonPrimary, 'Disc. (', ')', {
+                        fontSize: 13,
+                        color: theme.colors.accent,
+                        // marginLeft: 10,
+                      })}
                     </View>
                   }
                   containerStyle={{paddingVertical: 13}}
