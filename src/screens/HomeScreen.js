@@ -41,7 +41,16 @@ const style = StyleSheet.create({
 
 class HomeScreen extends React.PureComponent {
   input = null;
-  state = {banners: null, errorLoadingData: false};
+  state = {
+    banners: null,
+    errorLoadingData: false,
+    greeting1: 'Hi..',
+    colorGreeting1: '#fff',
+    bgcolorGreeting1: 'rgba(0,0,0,0.62)',
+    greeting2: 'Selamat Datang...',
+    colorGreeting2: '#fff',
+    bgcolorGreeting2: 'rgba(0,0,0,0.62)',
+  };
 
   constructor(props) {
     super(props);
@@ -60,8 +69,16 @@ class HomeScreen extends React.PureComponent {
   loadBanner() {
     RestApi.get('/banner/all-active')
       .then(res => {
-        console.log('response banner', res.data.value);
+        // console.log('response banner', res.data);
         this.setState({
+          greeting1: res.data.settings.greeting1,
+          greeting2: res.data.settings.greeting2,
+          colorGreeting1: res.data.colorGreeting1 || this.state.colorGreeting1,
+          bgcolorGreeting1:
+            res.data.bgcolorGreeting1 || this.state.bgcolorGreeting1,
+          colorGreeting2: res.data.colorGreeting2 || this.state.colorGreeting2,
+          bgcolorGreeting2:
+            res.data.bgcolorGreeting2 || this.state.bgcolorGreeting2,
           banners: res.data.value,
           isLoading: false,
           errorLoadingData: false,
@@ -105,7 +122,7 @@ class HomeScreen extends React.PureComponent {
             bottom: 0,
             position: 'absolute',
             width: '100%',
-            backgroundColor: 'rgba(0,0,0,0.62)',
+            backgroundColor: this.state.bgcolorGreeting1,
             paddingVertical: 10,
             paddingHorizontal: 25,
           }}>
@@ -177,20 +194,18 @@ class HomeScreen extends React.PureComponent {
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            backgroundColor: 'rgba(0,0,0,0.34)',
+            backgroundColor: this.state.bgcolorGreeting2,
             paddingTop: 10,
             paddingLeft: 25,
             paddingBottom: 10,
           }}>
           <View>
-            <View style={{flexDirection: 'row'}}>
-              <Text style={{fontSize: 19, color: '#fff'}}>Hi </Text>
-              <Text style={{fontSize: 19, fontWeight: 'bold', color: '#fff'}}>
-                {this.state.name?.substring(0, 11)}
-                {this.state.name?.length > 11 ? '...' : ''},
-              </Text>
-            </View>
-            <Text style={{color: '#fff'}}>Kami siap melayani anda</Text>
+            <Text style={{fontSize: 19, color: this.state.colorGreeting1}}>
+              {this.state.greeting1}
+            </Text>
+            <Text style={{color: this.state.colorGreeting2}}>
+              {this.state.greeting2}
+            </Text>
           </View>
           <TouchableHighlight
             style={{
