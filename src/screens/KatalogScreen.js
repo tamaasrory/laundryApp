@@ -257,6 +257,7 @@ class KatalogScreen extends React.PureComponent {
     if (this.state.selectedKategori) {
       /** @type OrderStore */
       const {setData, getData} = this.props.orderStore;
+      // console.log('order list before ==> ' + getData.length, JSON.stringify(getData));
       let data = this.state.selectedBarang;
 
       let jp = this.state.jumlahPesanan.toString().replace(',', '.') || 0;
@@ -281,7 +282,7 @@ class KatalogScreen extends React.PureComponent {
       }
 
       setData(tmpOrder);
-      // console.log('order list ==> ' + getData.length, JSON.stringify(getData));
+      // console.log('order list after ==> ' + getData.length, JSON.stringify(getData));
       this.bs.current.snapTo(2);
       Keyboard.dismiss();
     }

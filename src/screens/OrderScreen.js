@@ -213,7 +213,7 @@ class OrderScreen extends React.PureComponent {
   }
 
   sendOrder() {
-    //console.log('test order', JSON.stringify(this.getData()));
+    // console.log('test order', JSON.stringify(this.getData()));
     let payload = this.getData();
     if (payload) {
       this.setState({showProgressDialog: true});
