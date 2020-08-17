@@ -125,7 +125,7 @@ class HomeScreen extends React.PureComponent {
             bottom: 0,
             position: 'absolute',
             width: '100%',
-            backgroundColor: this.state.bgcolorGreeting1,
+            backgroundColor: this.state.bgcolorGreeting2,
             paddingVertical: 10,
             paddingHorizontal: 25,
           }}>
@@ -173,22 +173,6 @@ class HomeScreen extends React.PureComponent {
         this.props.navigation.navigate('HistoryScreen');
       },
     },
-    {
-      icon: {name: 'history', color: '#5f5f5f'},
-      title: 'Riwayat',
-      subtitle: 'lihat informasi pesanan yang pernah kamu lakukan',
-      onPress: () => {
-        this.props.navigation.navigate('HistoryScreen');
-      },
-    },
-    {
-      icon: {name: 'history', color: '#5f5f5f'},
-      title: 'Riwayat',
-      subtitle: 'lihat informasi pesanan yang pernah kamu lakukan',
-      onPress: () => {
-        this.props.navigation.navigate('HistoryScreen');
-      },
-    },
   ];
 
   render() {
@@ -210,28 +194,24 @@ class HomeScreen extends React.PureComponent {
               inactiveSlideScale={1}
             />
           </View>
-        </FlatContainer>
-        <View
-          style={{
-            backgroundColor: '#fff',
-            position: 'absolute',
-            bottom: 0,
-            height: '47%',
-            paddingTop: 15,
-            width: '100%',
-            borderTopRightRadius: 35,
-            borderTopLeftRadius: 35,
-          }}>
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
               paddingTop: 5,
-              paddingBottom: 10,
+              marginTop: 10,
+              borderRadius: 17,
+              marginHorizontal: 10,
+              backgroundColor: this.state.bgcolorGreeting1,
+              paddingBottom: 7,
             }}>
-            <View style={{width: '70%', marginLeft: 25}}>
+            <View style={{width: '70%', marginLeft: 15}}>
               <Text
-                style={{fontSize: 16, color: this.state.colorGreeting1}}
+                style={{
+                  fontSize: 16,
+                  color: this.state.colorGreeting1,
+                  fontWeight: 'bold',
+                }}
                 numberOfLines={1}>
                 {this.state.greeting1}
               </Text>
@@ -244,7 +224,7 @@ class HomeScreen extends React.PureComponent {
             <TouchableHighlight
               style={{
                 alignSelf: 'center',
-                marginRight: 25,
+                marginRight: 15,
                 borderRadius: 50,
               }}
               underlayColor={'rgba(0,0,0,0.08)'}
@@ -264,52 +244,68 @@ class HomeScreen extends React.PureComponent {
               />
             </TouchableHighlight>
           </View>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            onScrollBeginDrag={e => {
-              console.log(e);
-            }}>
-            {this.menu.map(data => {
-              return (
-                <ListItem
-                  underlayColor={'transparent'}
-                  containerStyle={{
-                    paddingLeft: 25,
-                    paddingVertical: 10,
-                    backgroundColor: 'transparent',
-                  }}
-                  leftElement={
+        </FlatContainer>
+        <View
+          style={{
+            backgroundColor: '#fff',
+            position: 'absolute',
+            bottom: 0,
+            height: '47%',
+            paddingTop: 15,
+            width: '100%',
+            borderTopRightRadius: 35,
+            borderTopLeftRadius: 35,
+          }}>
+          {this.menu.map(data => {
+            return (
+              <ListItem
+                underlayColor={'transparent'}
+                containerStyle={{
+                  paddingLeft: 25,
+                  paddingVertical: 10,
+                  backgroundColor: 'transparent',
+                }}
+                leftElement={
+                  <View
+                    style={{
+                      borderRadius: 15,
+                      backgroundColor: '#000',
+                      elevation: 3,
+                    }}>
                     <View
                       style={{
+                        padding: 10,
                         borderRadius: 15,
-                        backgroundColor: '#000',
-                        elevation: 3,
+                        width: 48,
+                        height: 48,
+                        backgroundColor: data.icon.color,
+                        alignSelf: 'center',
                       }}>
-                      <View
-                        style={{
-                          padding: 10,
-                          borderRadius: 15,
-                          width: 48,
-                          height: 48,
-                          backgroundColor: data.icon.color,
-                          alignSelf: 'center',
-                        }}>
-                        <MaterialCommunityIcons
-                          style={{alignSelf: 'center'}}
-                          name={data.icon.name}
-                          color={'#fff'}
-                          size={24}
-                        />
-                      </View>
+                      <MaterialCommunityIcons
+                        style={{alignSelf: 'center'}}
+                        name={data.icon.name}
+                        color={'#fff'}
+                        size={24}
+                      />
                     </View>
-                  }
-                  title={data.title}
-                  subtitle={data.subtitle}
-                  onPress={data.onPress}
-                />
-              );
-            })}
-          </ScrollView>
+                  </View>
+                }
+                title={data.title}
+                subtitle={data.subtitle}
+                onPress={data.onPress}
+              />
+            );
+          })}
+          <Text
+            style={{
+              color: 'grey',
+              fontSize: 10,
+              alignSelf: 'center',
+              bottom: 20,
+              position: 'absolute',
+            }}>
+            v.1.0 BETA
+          </Text>
         </View>
       </View>
     );
