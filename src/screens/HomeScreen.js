@@ -28,17 +28,14 @@ const itemWidth = screenWidth;
 const style = StyleSheet.create({
   carousel_item: {
     width: itemWidth,
-    height: '100%',
   },
   carousel_image_container: {
-    flex: 1,
+    height: '100%',
     marginBottom: Platform.select({ios: 0, android: 1}), // Prevent a random Android rendering issue
     backgroundColor: 'white',
-    // borderRadius: 8,
   },
   carousel_image: {
-    ...StyleSheet.absoluteFillObject,
-    resizeMode: 'cover',
+    resizeMode: 'stretch',
   },
 });
 
@@ -121,7 +118,6 @@ class HomeScreen extends React.PureComponent {
         />
         <View
           style={{
-            height: '33%',
             bottom: 0,
             position: 'absolute',
             width: '100%',
@@ -136,10 +132,10 @@ class HomeScreen extends React.PureComponent {
               marginBottom: 2,
               fontSize: 15,
             }}
-            numberOfLines={2}>
+            numberOfLines={1}>
             {item.title}
           </Text>
-          <Text style={{color: '#fff', fontSize: 13}} numberOfLines={2}>
+          <Text style={{color: '#fff', fontSize: 13}} numberOfLines={3}>
             {item.description}
           </Text>
         </View>
@@ -181,7 +177,7 @@ class HomeScreen extends React.PureComponent {
       <View style={styles.flatContainer}>
         <FlatContainer onRefresh={() => this.loadBanner()}>
           <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
-          <View style={{height: '60%', position: 'absolute'}}>
+          <View style={{height: '50%', position: 'absolute'}}>
             <Carousel
               sliderWidth={screenWidth}
               itemWidth={itemWidth}
@@ -196,16 +192,31 @@ class HomeScreen extends React.PureComponent {
           </View>
           <View
             style={{
+              backgroundColor: this.state.bgcolorGreeting2,
+              top: '50%',
+              height: '10%',
+            }}
+          />
+        </FlatContainer>
+        <View
+          style={{
+            backgroundColor: '#fff',
+            position: 'absolute',
+            bottom: 0,
+            height: '50%',
+            paddingTop: 15,
+            width: '100%',
+            borderTopRightRadius: 35,
+            borderTopLeftRadius: 35,
+          }}>
+          <View
+            style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
               paddingTop: 5,
-              marginTop: 10,
-              borderRadius: 17,
-              marginHorizontal: 10,
-              backgroundColor: this.state.bgcolorGreeting1,
-              paddingBottom: 7,
+              paddingBottom: 10,
             }}>
-            <View style={{width: '70%', marginLeft: 15}}>
+            <View style={{width: '70%', marginLeft: 25}}>
               <Text
                 style={{
                   fontSize: 16,
@@ -217,14 +228,14 @@ class HomeScreen extends React.PureComponent {
               </Text>
               <Text
                 numberOfLines={2}
-                style={{color: this.state.colorGreeting2, fontSize: 12}}>
+                style={{color: this.state.colorGreeting2, fontSize: 13}}>
                 {this.state.greeting2}
               </Text>
             </View>
             <TouchableHighlight
               style={{
                 alignSelf: 'center',
-                marginRight: 15,
+                marginRight: 25,
                 borderRadius: 50,
               }}
               underlayColor={'rgba(0,0,0,0.08)'}
@@ -240,68 +251,71 @@ class HomeScreen extends React.PureComponent {
                 }}
                 name="account"
                 color={'#fff'}
-                size={23}
+                size={24}
               />
             </TouchableHighlight>
           </View>
-        </FlatContainer>
-        <View
-          style={{
-            backgroundColor: '#fff',
-            position: 'absolute',
-            bottom: 0,
-            height: '47%',
-            paddingTop: 15,
-            width: '100%',
-            borderTopRightRadius: 35,
-            borderTopLeftRadius: 35,
-          }}>
-          {this.menu.map(data => {
-            return (
-              <ListItem
-                underlayColor={'transparent'}
-                containerStyle={{
-                  paddingLeft: 25,
-                  paddingVertical: 10,
-                  backgroundColor: 'transparent',
-                }}
-                leftElement={
-                  <View
-                    style={{
-                      borderRadius: 15,
-                      backgroundColor: '#000',
-                      elevation: 3,
-                    }}>
+          <ScrollView
+            style={{marginBottom: 30}}
+            showsVerticalScrollIndicator={false}
+            onScrollBeginDrag={e => {
+              console.log(e);
+            }}>
+            {this.menu.map(data => {
+              return (
+                <ListItem
+                  underlayColor={'transparent'}
+                  containerStyle={{
+                    paddingLeft: 25,
+                    paddingVertical: 7,
+                    backgroundColor: 'transparent',
+                  }}
+                  leftElement={
                     <View
                       style={{
-                        padding: 10,
                         borderRadius: 15,
-                        width: 48,
-                        height: 48,
-                        backgroundColor: data.icon.color,
-                        alignSelf: 'center',
+                        backgroundColor: '#000',
+                        elevation: 3,
                       }}>
-                      <MaterialCommunityIcons
-                        style={{alignSelf: 'center'}}
-                        name={data.icon.name}
-                        color={'#fff'}
-                        size={24}
-                      />
+                      <View
+                        style={{
+                          padding: 10,
+                          borderRadius: 15,
+                          width: 48,
+                          height: 48,
+                          backgroundColor: data.icon.color,
+                          alignSelf: 'center',
+                        }}>
+                        <MaterialCommunityIcons
+                          style={{alignSelf: 'center'}}
+                          name={data.icon.name}
+                          color={'#fff'}
+                          size={24}
+                        />
+                      </View>
                     </View>
-                  </View>
-                }
-                title={data.title}
-                subtitle={data.subtitle}
-                onPress={data.onPress}
-              />
-            );
-          })}
+                  }
+                  title={data.title}
+                  subtitle={
+                    <Text style={{fontSize: 13, color: Colors.grey600}}>
+                      {data.subtitle}
+                    </Text>
+                  }
+                  onPress={data.onPress}
+                />
+              );
+            })}
+          </ScrollView>
+
           <Text
             style={{
               color: 'grey',
               fontSize: 10,
-              alignSelf: 'center',
-              bottom: 20,
+              paddingVertical: 10,
+              width: '100%',
+              backgroundColor: '#fff',
+              textAlign: 'center',
+              bottom: 0,
               position: 'absolute',
             }}>
             v.1.0 BETA

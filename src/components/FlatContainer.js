@@ -20,6 +20,7 @@ const FlatContainer = ({children, style, ...props}) => {
     <ScrollView
       nestedScrollEnabled={props.nested}
       contentContainerStyle={styles.scrollView}
+      showsVerticalScrollIndicator={false}
       onLayout={event =>
         props.onLayout ? props.onLayout(event.nativeEvent.layout) : {}
       }
