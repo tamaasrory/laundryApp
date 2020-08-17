@@ -8,6 +8,7 @@ import Carousel, {ParallaxImage} from 'react-native-snap-carousel';
 import {
   Dimensions,
   Platform,
+  ScrollView,
   StatusBar,
   StyleSheet,
   TouchableHighlight,
@@ -19,6 +20,8 @@ import {theme} from '../core/theme';
 import RestApi from '../router/Api';
 import Path from '../router/Path';
 import moment from 'moment';
+import styles from '../components/Styles';
+import {Colors} from 'react-native-paper';
 
 const {width: screenWidth} = Dimensions.get('window');
 const itemWidth = screenWidth;
@@ -170,66 +173,44 @@ class HomeScreen extends React.PureComponent {
         this.props.navigation.navigate('HistoryScreen');
       },
     },
+    {
+      icon: {name: 'history', color: '#5f5f5f'},
+      title: 'Riwayat',
+      subtitle: 'lihat informasi pesanan yang pernah kamu lakukan',
+      onPress: () => {
+        this.props.navigation.navigate('HistoryScreen');
+      },
+    },
+    {
+      icon: {name: 'history', color: '#5f5f5f'},
+      title: 'Riwayat',
+      subtitle: 'lihat informasi pesanan yang pernah kamu lakukan',
+      onPress: () => {
+        this.props.navigation.navigate('HistoryScreen');
+      },
+    },
   ];
 
   render() {
     console.info('#render : ', this.constructor.name);
     return (
-      <FlatContainer onRefresh={() => this.loadBanner()}>
-        <View style={{height: '60%', position: 'absolute'}}>
-          <Carousel
-            sliderWidth={screenWidth}
-            itemWidth={itemWidth}
-            data={this.state.banners}
-            renderItem={this.renderItem}
-            hasParallaxImages={true}
-            loop={true}
-            autoplay={true}
-            autoplayInterval={6000}
-            inactiveSlideScale={1}
-          />
-        </View>
-        <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            backgroundColor: this.state.bgcolorGreeting2,
-            paddingTop: 10,
-            paddingLeft: 25,
-            paddingBottom: 10,
-          }}>
-          <View>
-            <Text style={{fontSize: 19, color: this.state.colorGreeting1}}>
-              {this.state.greeting1}
-            </Text>
-            <Text style={{color: this.state.colorGreeting2}}>
-              {this.state.greeting2}
-            </Text>
-          </View>
-          <TouchableHighlight
-            style={{
-              alignSelf: 'center',
-              marginRight: 25,
-              borderRadius: 50,
-            }}
-            underlayColor={'rgba(0,0,0,0.08)'}
-            onPress={() => {
-              this.props.navigation.navigate('AccountScreen');
-            }}>
-            <MaterialCommunityIcons
-              style={{
-                alignSelf: 'center',
-                padding: 5,
-                backgroundColor: '#fff',
-                borderRadius: 50,
-              }}
-              name="account"
-              color={theme.colors.accent}
-              size={23}
+      <View style={styles.flatContainer}>
+        <FlatContainer onRefresh={() => this.loadBanner()}>
+          <StatusBar backgroundColor={'#fff'} barStyle={'dark-content'} />
+          <View style={{height: '60%', position: 'absolute'}}>
+            <Carousel
+              sliderWidth={screenWidth}
+              itemWidth={itemWidth}
+              data={this.state.banners}
+              renderItem={this.renderItem}
+              hasParallaxImages={true}
+              loop={true}
+              autoplay={true}
+              autoplayInterval={6000}
+              inactiveSlideScale={1}
             />
-          </TouchableHighlight>
-        </View>
+          </View>
+        </FlatContainer>
         <View
           style={{
             backgroundColor: '#fff',
@@ -241,58 +222,96 @@ class HomeScreen extends React.PureComponent {
             borderTopRightRadius: 35,
             borderTopLeftRadius: 35,
           }}>
-          {this.menu.map(data => {
-            return (
-              <ListItem
-                underlayColor={'transparent'}
-                containerStyle={{
-                  paddingLeft: 25,
-                  paddingVertical: 10,
-                  backgroundColor: 'transparent',
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingTop: 5,
+              paddingBottom: 10,
+            }}>
+            <View style={{width: '70%', marginLeft: 25}}>
+              <Text
+                style={{fontSize: 16, color: this.state.colorGreeting1}}
+                numberOfLines={1}>
+                {this.state.greeting1}
+              </Text>
+              <Text
+                numberOfLines={2}
+                style={{color: this.state.colorGreeting2, fontSize: 12}}>
+                {this.state.greeting2}
+              </Text>
+            </View>
+            <TouchableHighlight
+              style={{
+                alignSelf: 'center',
+                marginRight: 25,
+                borderRadius: 50,
+              }}
+              underlayColor={'rgba(0,0,0,0.08)'}
+              onPress={() => {
+                this.props.navigation.navigate('AccountScreen');
+              }}>
+              <MaterialCommunityIcons
+                style={{
+                  alignSelf: 'center',
+                  padding: 5,
+                  backgroundColor: Colors.blue500,
+                  borderRadius: 50,
                 }}
-                leftElement={
-                  <View
-                    style={{
-                      borderRadius: 15,
-                      backgroundColor: '#000',
-                      elevation: 3,
-                    }}>
+                name="account"
+                color={'#fff'}
+                size={23}
+              />
+            </TouchableHighlight>
+          </View>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            onScrollBeginDrag={e => {
+              console.log(e);
+            }}>
+            {this.menu.map(data => {
+              return (
+                <ListItem
+                  underlayColor={'transparent'}
+                  containerStyle={{
+                    paddingLeft: 25,
+                    paddingVertical: 10,
+                    backgroundColor: 'transparent',
+                  }}
+                  leftElement={
                     <View
                       style={{
-                        padding: 10,
                         borderRadius: 15,
-                        width: 48,
-                        height: 48,
-                        backgroundColor: data.icon.color,
-                        alignSelf: 'center',
+                        backgroundColor: '#000',
+                        elevation: 3,
                       }}>
-                      <MaterialCommunityIcons
-                        style={{alignSelf: 'center'}}
-                        name={data.icon.name}
-                        color={'#fff'}
-                        size={24}
-                      />
+                      <View
+                        style={{
+                          padding: 10,
+                          borderRadius: 15,
+                          width: 48,
+                          height: 48,
+                          backgroundColor: data.icon.color,
+                          alignSelf: 'center',
+                        }}>
+                        <MaterialCommunityIcons
+                          style={{alignSelf: 'center'}}
+                          name={data.icon.name}
+                          color={'#fff'}
+                          size={24}
+                        />
+                      </View>
                     </View>
-                  </View>
-                }
-                title={data.title}
-                subtitle={data.subtitle}
-                onPress={data.onPress}
-              />
-            );
-          })}
-          <Text
-            style={{
-              color: 'grey',
-              fontSize: 10,
-              alignSelf: 'center',
-              bottom: 20,
-              position: 'absolute',
-            }}>
-            v.1.0 BETA
-          </Text>
+                  }
+                  title={data.title}
+                  subtitle={data.subtitle}
+                  onPress={data.onPress}
+                />
+              );
+            })}
+          </ScrollView>
         </View>
-      </FlatContainer>
+      </View>
     );
   }
 }
