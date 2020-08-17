@@ -566,7 +566,12 @@ class DetailOrderScreen extends React.PureComponent {
                 style={{fontSize: 16, textAlign: 'center', fontWeight: 'bold'}}>
                 {detail_outlet.nama}
               </Text>
-              <Text style={{fontSize: 12, textAlign: 'center'}}>
+              <Text
+                style={{
+                  fontSize: 12,
+                  textAlign: 'center',
+                  marginHorizontal: '5%',
+                }}>
                 {detail_outlet.alamat}
               </Text>
               <Text style={{fontSize: 12, textAlign: 'center'}}>
@@ -663,15 +668,18 @@ class DetailOrderScreen extends React.PureComponent {
                   backgroundColor: 'rgba(0,183,255,0.4)',
                   borderRadius: 10,
                   paddingVertical: 7,
-                  paddingHorizontal: 10,
                 }}>
                 <MaterialCommunityIcons
                   name={'information'}
                   size={24}
                   color={theme.colors.primary}
-                  style={{alignSelf: 'center'}}
+                  style={{
+                    alignSelf: 'center',
+                    textAlign: 'center',
+                    width: '15%',
+                  }}
                 />
-                <Text style={{fontSize: 12, paddingHorizontal: 8}}>
+                <Text style={{fontSize: 12, width: '83%'}}>
                   Waktu selesai laundry yang tertera pada pembayaran di atas
                   merupakan estimasi waktu tercepat laundry akan kami
                   selesaikan.
